@@ -1,0 +1,19 @@
+name: Python application feature and private
+
+on:
+  push:
+    branches: [ "feauture/*", "private/*" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Greeting message
+      run: |
+        echo "You try to push into feature or private branch. It is dummy message "
