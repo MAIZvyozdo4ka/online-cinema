@@ -17,7 +17,6 @@ revision: str = '2524d11690f5'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
-primary_key_links : int = 0
 convert_type : dict[str : Any] = {
     'INTEGER' : int,
     'VARCHAR' : str
@@ -37,7 +36,7 @@ def split_any_type(item : list[str], index : int, type : type) -> tuple[int, Any
     field : list[str] = []
     
     if item[index][0] != '"':
-        raise AttributeError()
+        raise AttributeError(','.join(item))
     
     while(index < len(item)):
         field_now = item[index]
