@@ -38,7 +38,7 @@ def split_any_type(item : list[str], index : int, type : type) -> tuple[int, Any
     if item[index][0] != '"':
         raise AttributeError(','.join(item))
     
-    while(index < len(item)):
+    while (index < len(item)):
         field_now = item[index]
         field.append(field_now)
         if field_now[-1] == '"':
@@ -53,7 +53,7 @@ def serializate_item(item : str, column_types : list[type], default_values_facto
     item = item.replace('\n', '').split(',')
     serializated_item : list[str | int | None] = []
     item_index : int = 0
-    default_values_factory_index = 0
+    default_values_factory_index : int = 0
     
     for type in column_types:
         if type is None:

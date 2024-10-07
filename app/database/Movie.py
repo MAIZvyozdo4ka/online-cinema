@@ -12,8 +12,5 @@ class Movie(Base):
     genres : Mapped[str]    
     link = relationship('Link', back_populates = 'movie', lazy = 'selectin')
     
-    def __repr__(self) -> str:
-        return f'Movie(movie_id = {self.movie_id}, title = {self.title}, genres = {self.genres})'
-
 
 
