@@ -1,8 +1,9 @@
 from .schemas import UserRegistrationCredentialsIn, UserLoginCredentialsIn, RefreshTokenIn
-from database import async_session_maker, UserDB, IssuedJWTTokenDB
-from JWTToken import JWTToken, token_schemas, TokenValidation, JWTTokenDAO
-from sqlalchemy import select, or_
+from app.database import UserDB
+from app.JWTToken import TokenValidation, JWTTokenDAO, IssuedJWTTokensOut
+from sqlalchemy import select, or_, insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.BaseDAO import BaseDAO
 from .errors import (
                     UsernameOccupiedError,
                     EmailOccupiedError,
@@ -10,13 +11,13 @@ from .errors import (
                     InvalidPasswordError,
                     InvalidUsernameOrEmailError
                 )
+from app.user.schemas import NonPrivateUserInfoOut
 
 
 
 
 
-
-class AuthDAO:
+class AuthDAO(BaseDAO):
     
     @classmethod
     async def get_user_by_email_or_username(cls,
@@ -72,63 +73,64 @@ class AuthDAO:
     
     
     @classmethod
-    async def registrate(cls, user_credentials : UserRegistrationCredentialsIn) -> token_schemas.IssuedJWTTokensOut:
+    @BaseDAO.get_session(auto_commit = True)
+    async def registrate(cls,
+                         session : AsyncSession, 
+                         user_credentials : UserRegistrationCredentialsIn
+                        ) -> IssuedJWTTokensOut:
         
-        async with async_session_maker() as session, session.begin():
-            
-            error = await cls.get_user_with_same_credentials(session, user_credentials)
-            
-            if error is not None:
-                raise error
-            
-            new_user = UserDB(**user_credentials.model_dump())
-            session.add(new_user)
-            await session.flush()
-            
-            return cls.generate_and_save_new_tokens_by_user_id(session, new_user.id)
+        query_for_new_user = insert(UserDB).values(user_credentials.model_dump()).returning(UserDB.id)
+        
+        error = await cls.get_user_with_same_credentials(session, user_credentials)
+        
+        if error is not None:
+            raise error
+        
+        user_id = await session.scalar(query_for_new_user)
+        
+        return JWTTokenDAO.generate_and_save_new_tokens_by_user_id(session, 
+                                                                        NonPrivateUserInfoOut(
+                                                                                username = user_credentials.username,
+                                                                                user_id = user_id
+                                                                            )
+                                                                    )
     
     
     
     @classmethod
-    async def login(cls, user_credentials : UserLoginCredentialsIn) -> token_schemas.IssuedJWTTokensOut:
-        async with async_session_maker() as session, session.begin():
+    @BaseDAO.get_session(auto_commit = True)
+    async def login(cls,
+                    session : AsyncSession,
+                    user_credentials : UserLoginCredentialsIn
+                ) -> IssuedJWTTokensOut:
             
-            loggining_user, error = await cls.get_user_with_logining_credentials(session, user_credentials)
-            
-            if error is not None:
-                raise error
-            
-            return cls.generate_and_save_new_tokens_by_user_id(session, loggining_user.id)
+        loggining_user, error = await cls.get_user_with_logining_credentials(session, user_credentials)
+        
+        if error is not None:
+            raise error
+        
+        return JWTTokenDAO.generate_and_save_new_tokens_by_user_id(session, NonPrivateUserInfoOut.model_validate(loggining_user))
             
             
     
     @classmethod
-    async def update_tokens(cls, refresh_token : RefreshTokenIn) -> token_schemas.IssuedJWTTokensOut:
-        refresh_token_data = TokenValidation.check_refresh_token(refresh_token.refresh_token)
+    @BaseDAO.get_session(auto_commit = True, ignore_http_errors = True)
+    async def update_tokens(cls,
+                            session : AsyncSession,
+                            refresh_token : RefreshTokenIn
+                        ) -> IssuedJWTTokensOut:
+        refresh_token_data = TokenValidation.check_refresh_token(refresh_token.refresh_token)    
+        _, error = await JWTTokenDAO.delete_user_tokens_by_device_id(session, refresh_token_data.device_id)
         
-        async with async_session_maker() as session, session.begin():
-            
-            user_id, error = await JWTTokenDAO.delete_user_tokens_by_device_id(session, refresh_token_data.device_id)
-            
-            if error is None:
-                return cls.generate_and_save_new_tokens_by_user_id(session, user_id)
-            
+        if error is not None:
             await JWTTokenDAO.delete_all_user_tokens_by_user_id(session, refresh_token_data.user_id)
-            
-        raise error
+            raise error
+        
+        return JWTTokenDAO.generate_and_save_new_tokens_by_user_id(session, NonPrivateUserInfoOut.model_validate(refresh_token_data))
             
                                   
       
-      
-    @classmethod
-    def generate_and_save_new_tokens_by_user_id(cls,
-                                                session : AsyncSession,
-                                                user_id : int
-                                            ) -> token_schemas.IssuedJWTTokensOut:
-        new_tokens_with_data = JWTToken.generate_tokens(user_id)
-        new_tokens_db = [IssuedJWTTokenDB(**token_data.model_dump()) for token_data in new_tokens_with_data.data]
-        session.add_all(new_tokens_db)
-        return new_tokens_with_data.tokens      
+            
     
     
         

@@ -1,12 +1,13 @@
+from typing import Any
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from .config import get_db_url
-
 
 
 DATABASE_URL = get_db_url()
 engine = create_async_engine(DATABASE_URL, echo = True) 
-async_session_maker = async_sessionmaker(engine)
+sync_session_maker = sessionmaker()
+async_session_maker = async_sessionmaker(engine, sync_session_class = sync_session_maker)
 
 
 

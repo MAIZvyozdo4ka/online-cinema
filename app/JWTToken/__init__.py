@@ -1,9 +1,8 @@
-from .JWTToken import JWTToken
 from .errors import JWTExeption
 from .TokenValidation import TokenValidation
-from  . import schemas as token_schemas
 from .dao import JWTTokenDAO
+from .schemas import IssuedJWTTokenData, IssuedJWTTokensOut, IssuedJWTTokensWithDataOut
 
 
 
-__all__ = ['JWTToken', 'JWTExeption', 'token_schemas', 'TokenValidation', 'JWTTokenDAO']
+__all__ = ['JWTExeption', 'IssuedJWTTokenData', 'IssuedJWTTokensOut', 'IssuedJWTTokensWithDataOut', 'TokenValidation', 'JWTTokenDAO']

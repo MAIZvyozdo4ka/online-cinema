@@ -1,16 +1,25 @@
 from typing import Any
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from fastapi.responses import JSONResponse
 from fastapi import Request
+from enum import StrEnum, auto
+
+
+
+class BaseHTTPErrorType(StrEnum):
+    ERROR = auto()
 
 
 
 class BaseHTTPExeptionModel(BaseModel):
+    type : BaseHTTPErrorType = Field(description = 'Тип ошибки', default = BaseHTTPErrorType.ERROR)
+    message : str = Field(description = 'Подробности')
     
     model_config = ConfigDict(frozen = True)
     
-    
-    
+
+
+
 class BaseHTTPExeption(Exception):
     
     _all_responses_schemas : dict[type, dict[int, dict[str, Any]]] = {}
@@ -41,7 +50,6 @@ class BaseHTTPExeption(Exception):
     
     
     def __str__(self) -> str:
-        print('1')
         return f'{self.status_code} : {self.ditail}'
     
     

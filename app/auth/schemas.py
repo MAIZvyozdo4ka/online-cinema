@@ -1,14 +1,14 @@
 from pydantic import Field, ConfigDict, field_serializer, EmailStr, field_validator
-from BaseSchema import Model
+from app.BaseModel import BaseModel
 from hashlib import sha256
-from .errors import IncorrectUsernameError
 import re
+from app.user.schemas import PrivateUserInfo
 
 
 
-class UserCredentialsIn(Model):
+class UserCredentialsIn(BaseModel):
     
-    password : str = Field(serialization_alias = 'hash_password', min_length = 8, description = 'Пароль')
+    password : str = Field(serialization_alias = 'hash_password', min_length = 5, description = 'Пароль')
     
     @field_serializer('password')
     @classmethod
@@ -19,19 +19,14 @@ class UserCredentialsIn(Model):
 
 
 class UserLoginCredentialsIn(UserCredentialsIn):
-    username_or_email : str | EmailStr = Field(min_length = 8, description = 'Никнейм или емейл')
+    username_or_email : str | EmailStr = Field(min_length = 5, description = 'Никнейм или емейл')
     
     model_config = ConfigDict(title = 'Вход в аккаут')
     
 
 
 
-class UserRegistrationCredentialsIn(UserCredentialsIn):
-    
-    username : str = Field(min_length = 8, description = 'Никнейм')
-    email : EmailStr = Field(min_length = 5, description = 'Емайл')
-    first_name : str = Field(min_length = 1, description = 'Имя')
-    last_name : str = Field(min_length = 1, description = 'Фамилия')
+class UserRegistrationCredentialsIn(PrivateUserInfo, UserCredentialsIn):
     
     model_config = ConfigDict(title = 'Создание аккаута')
     
@@ -40,13 +35,13 @@ class UserRegistrationCredentialsIn(UserCredentialsIn):
     @classmethod
     def check_username_is_not_like_email(cls, username : str) -> str:
         if re.match(r'^\S+@\S+\.\S+$', username):
-            raise IncorrectUsernameError
+            raise ValueError('username like email')
         return username
         
         
         
         
-class RefreshTokenIn(Model):
+class RefreshTokenIn(BaseModel):
     
     refresh_token : str = Field(min_length = 1, description = 'refresh_token')
     

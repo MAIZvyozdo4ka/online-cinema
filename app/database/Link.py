@@ -1,7 +1,7 @@
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from .Base import Base
-from .Movie import MovieDB
+from .column_types import cascade_foreign_key, pk_key_column, unique_column
 
 
 
@@ -9,11 +9,7 @@ class LinkDB(Base):
     
     __tablename__ = 'links'
     
-    id : Mapped[int] = mapped_column(primary_key = True)
-    movie_id : Mapped[int] = mapped_column(ForeignKey('movies.movie_id', ondelete = 'CASCADE'), unique = True)
-    imdb_id : Mapped[int | None] = mapped_column(unique = True)
-    tmbd_id : Mapped[int | None] = mapped_column(unique = True)
+    movie_id : Mapped[int] = pk_key_column(cascade_foreign_key('movies.id'))
+    imdb_id : Mapped[int | None] = unique_column()
+    tmbd_id : Mapped[int | None] = unique_column()
     
-    movie : Mapped[MovieDB] = relationship(back_populates = 'link', 
-                                           lazy = 'selectin'
-                                        )
