@@ -1,4 +1,4 @@
-from BaseConfig import BaseConfig
+from app.BaseConfig import BaseConfig
 
 
 class DBSettings(BaseConfig):

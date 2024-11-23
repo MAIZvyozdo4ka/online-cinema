@@ -1,27 +1,26 @@
-from BaseHTTPExeption import BaseHTTPExeption, BaseHTTPExeptionModel
+from app.BaseHTTPExeption import BaseHTTPExeption, BaseHTTPExeptionModel
 from pydantic import Field, ConfigDict
-from enum import StrEnum
+from enum import StrEnum, auto
 from fastapi import status
 
 
 
 
 class AccessErrorType(StrEnum):
-    TOKEN_IS_NOT_SPECIFIED = 'token_is_not_specified'
-    INCORRECT_AUTH_HEADER_FORM = 'incorrect_auth_header_form'
-    INCORRECT_TOKEN_TYPE = 'incorrect_token_type'
-    INVALID_TOKEN = 'invalid_token'
-    TOKEN_HAS_EXPIRED = 'token_has_expired'
-    TOKEN_OWNER_NOT_FOUND = 'token_owner_not_found'
-    TOKEN_REVOKED = 'token_revoked'
+    TOKEN_IS_NOT_SPECIFIED = auto()
+    INCORRECT_AUTH_HEADER_FORM = auto()
+    INCORRECT_TOKEN_TYPE = auto()
+    INVALID_TOKEN = auto()
+    TOKEN_HAS_EXPIRED = auto()
+    TOKEN_OWNER_NOT_FOUND = auto()
+    TOKEN_REVOKED = auto()
 
 
     
     
 class JWTExeptionModel(BaseHTTPExeptionModel):
     
-    type : AccessErrorType = Field(description = 'Тип ошибки')
-    message : str = Field(description = 'Подробности')
+    type : AccessErrorType
     
     model_config = ConfigDict(title = 'Ошибка авторизации')
 
@@ -32,7 +31,7 @@ class JWTExeption(BaseHTTPExeption):
 
 
 
-IsNotSpecifiedError = JWTExeption(status_code = status.HTTP_307_TEMPORARY_REDIRECT,
+IsNotSpecifiedError = JWTExeption(status_code = status.HTTP_302_FOUND,
                                   ditail = JWTExeptionModel(
                                                             type = AccessErrorType.TOKEN_IS_NOT_SPECIFIED,
                                                             message = 'Access-token header is not set'

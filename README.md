@@ -1,3 +1,8 @@
+ # индификаторы - id у фильмов и узера изменить на уникальные UUid
+ # tokens_schemas userout - убрать к хуям
+ # ссылку редирект надо в конфигах прописать ---- user_account
+ 
+ 
  python3 -m venv env
 
  source env/bin/activate
@@ -35,3 +40,5 @@
  https://firstvds.ru/technology/ustanovka-postgresql-na-ubuntu
 
  alembic upgrade head
+
+uvicorn app.main:app --reload

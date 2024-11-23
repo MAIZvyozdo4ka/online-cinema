@@ -1,6 +1,6 @@
-from BaseHTTPExeption import BaseHTTPExeption, BaseHTTPExeptionModel
-from pydantic import Field, ConfigDict
-from enum import StrEnum
+from app.BaseHTTPExeption import BaseHTTPExeption, BaseHTTPExeptionModel
+from pydantic import ConfigDict
+from enum import StrEnum, auto
 from fastapi import status
 
 
@@ -8,11 +8,10 @@ from fastapi import status
 
 
 class AuthErrorType(StrEnum):
-    EMAIL_OCCUPIED = 'email_occupied'
-    USERNAME_OCCUPIED = 'username_occupied'
-    INVALID_USERNAME_OR_EMAIL = 'invalid_username_or_email'
-    INVALID_PASSWORD = 'invalid_password'
-    USERNAME_LIKE_EMAIL = 'username_like_email'
+    EMAIL_OCCUPIED = auto()
+    USERNAME_OCCUPIED = auto()
+    INVALID_USERNAME_OR_EMAIL = auto()
+    INVALID_PASSWORD = auto()
 
 
 
@@ -20,9 +19,8 @@ class AuthErrorType(StrEnum):
 
 class AuthExeptionModel(BaseHTTPExeptionModel):
     
-    type : AuthErrorType = Field(description = 'Тип ошибки')
-    message : str = Field(description = 'Подробности')
-    
+    type : AuthErrorType
+ 
     model_config = ConfigDict(title = 'Ошибка регистации')
 
 
@@ -64,9 +62,3 @@ InvalidPasswordError = AuthExeption(status_code = status.HTTP_400_BAD_REQUEST,
                                          )
 
 
-IncorrectUsernameError = AuthExeption(status_code = status.HTTP_400_BAD_REQUEST,
-                                         ditail = AuthExeptionModel(
-                                                                    type = AuthErrorType.USERNAME_LIKE_EMAIL,
-                                                                    message = 'This username is incorrect'
-                                                                )
-                                         )

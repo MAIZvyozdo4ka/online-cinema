@@ -1,7 +1,7 @@
 from .JWTToken import JWTToken
 from fastapi import Request, Security
 from fastapi.security.api_key import APIKeyHeader
-from jwt import InvalidTokenError
+from jwt import InvalidTokenError, ExpiredSignatureError
 from .JWTTokenType import JWTTokenType
 from .errors import *
 from .dao import JWTTokenDAO
@@ -28,17 +28,17 @@ class TokenValidation:
 
 
     @staticmethod
-    def check_token_payload(token : str, type : JWTTokenType) -> dict[str, Any]:
+    def check_token_payload(token : str, type_ : JWTTokenType) -> dict[str, Any]:
         try:
             payload = JWTToken.verify_token(token)
+        except ExpiredSignatureError:
+            raise ExpiredTokenError
+        
         except InvalidTokenError:
             raise ClientInvalidTokenError
         
-        if payload['type'] != type:
+        if payload['type'] != type_:
             raise IncorrectTokenTypeError
-
-        if not JWTToken.is_active_token(token):
-            raise ExpiredTokenError
 
         return payload
     
@@ -50,12 +50,15 @@ class TokenValidation:
         request: Request,
         authorization_header: str = Security(APIKeyHeader(name = 'Authorization', auto_error = False))
     ) -> str:
+    
         clear_token = cls.__try_to_get_clear_token(authorization_header = authorization_header)
 
         payload = cls.check_token_payload(clear_token, JWTTokenType.ACCESS)
         
-        request.state.user = await JWTTokenDAO.get_user_by_jti(payload['jti'])
-        request.state.device_id = payload['sub']
+        await JWTTokenDAO.check_token_is_remove(payload['jti'])
+        
+        request.state.user = IssuedJWTTokenData.model_validate(payload)
+        request.state.error = None
         
         return authorization_header
     
@@ -82,6 +85,9 @@ class TokenValidation:
             return await cls.check_access_token(request = request, authorization_header = authorization_header)
         except JWTExeption as error:
             request.state.error = error
+            request.state.user = None
+            
+            
         
 
 
@@ -89,6 +95,6 @@ class TokenValidation:
     async def check_access_token_after_weak_check(
         request: Request
     ) -> None:
-        if request.state._state.get('error') is not None:
+        if request.state.error is not None:
             raise request.state.error
         

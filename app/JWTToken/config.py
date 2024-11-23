@@ -1,4 +1,4 @@
-from BaseConfig import BaseConfig
+from app.BaseConfig import BaseConfig
 from datetime import timedelta
 
 
@@ -13,4 +13,3 @@ class JWTTokenSettings(BaseConfig):
 
 
 jwtsettings = JWTTokenSettings()
-

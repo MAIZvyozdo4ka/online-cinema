@@ -2,9 +2,8 @@ import jwt
 from datetime import datetime, timedelta
 from .config import jwtsettings
 from .JWTTokenType import JWTTokenType
-from uuid import uuid4, UUID
-from .schemas import IssuedJWTTokenData, IssuedJWTTokensWithDataOut, IssuedJWTTokensOut
-
+from uuid import uuid4
+from .schemas import IssuedJWTTokenData, IssuedJWTTokensWithDataOut, IssuedJWTTokensOut, NonPrivateUserInfoOut
 
 
 class JWTToken:
@@ -69,16 +68,16 @@ class JWTToken:
     @classmethod
     def __sign_token(cls, type: str, token_data : IssuedJWTTokenData, ttl : timedelta) -> str:
         numeric_date_time_now = cls.get_numeric_date_time_now()
-
+        
         payload = {
             'iss' : 'zvezdochka@auth_service',
-            'sub' : token_data.device_id,
             'type' : type,
-            'user_id' : token_data.user_id,
-            'jti' : str(token_data.jti),
             'iat' : numeric_date_time_now,
             'exp' : numeric_date_time_now  + int(ttl.total_seconds())
         }
+        payload = payload | token_data.model_dump()
+        payload['jti'] = str(payload['jti'])
+        print(payload)
         
         return jwt.encode(payload = payload, key = jwtsettings.SECRET, algorithm = jwtsettings.ALGORITHM)
     
@@ -90,9 +89,13 @@ class JWTToken:
     
     
     @classmethod
-    def generate_tokens(cls, user_id : int) -> IssuedJWTTokensWithDataOut:
+    def generate_tokens(cls, payload : NonPrivateUserInfoOut) -> IssuedJWTTokensWithDataOut:
         device_id = cls.generate_device_id()
-        access_token_data, refresh_token_data = [IssuedJWTTokenData(device_id = device_id, user_id = user_id) for _ in range(2)]
+        
+        access_token_data, refresh_token_data = [IssuedJWTTokenData(device_id = device_id,
+                                                                    **payload.model_dump()
+                                                                ) for _ in range(2)
+                                                            ]
         return IssuedJWTTokensWithDataOut(
                         tokens = IssuedJWTTokensOut(
                             access_token = JWTToken.generate_access_token(access_token_data),
