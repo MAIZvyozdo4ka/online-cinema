@@ -1,3 +1,4 @@
+
 from pydantic import Field, ConfigDict, computed_field, AnyUrl, AliasChoices, field_validator, PositiveInt
 from .BaseModel import BaseModel
 from typing import Any, Annotated 
@@ -38,12 +39,12 @@ class MovieModelOut(MovieModel):
     review_count : int = Field(description = 'Количество рецензий фильма', validation_alias = 'movie_reviews_count')
     
     model_config = ConfigDict(title = 'Информация о фильме')
-    
+
     @computed_field(description = 'Ссылка для открытия фильма')
     @property
     def local_link(self) -> str:
         zeros_count : int = 7 - len(str(self.id))
-        
+
         return f'/api/v1/movie/{"0" * zeros_count}{self.id}'
     
     
@@ -109,6 +110,6 @@ class LinksForAnotherSite(BaseModel):
         
     
     
-    
+
     
     
