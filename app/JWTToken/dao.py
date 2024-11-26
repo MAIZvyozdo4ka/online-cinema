@@ -58,7 +58,7 @@ class JWTTokenDAO(BaseDAO):
                                                 payload : PrivateUserInfoOut,
                                             ) -> IssuedJWTTokensOut:
         new_tokens_with_data = JWTToken.generate_tokens(payload)
-        new_tokens_db = [IssuedJWTTokenDB(**token_data.model_dump(exclude = {'role', 'username'})) for token_data in new_tokens_with_data.data]
+        new_tokens_db = [IssuedJWTTokenDB(**token_data.model_dump()) for token_data in new_tokens_with_data.data]
         session.add_all(new_tokens_db)
         return new_tokens_with_data.tokens
         

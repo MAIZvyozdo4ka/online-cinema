@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from alembic_utils.replaceable_entity import register_entities
 
-from app.database.config import get_db_url
-from app.database import Base
-from app.database.triggers import get_all_pg_obj
+from core.models.postgres.config import get_db_url
+from core.models.postgres import Base
+from core.models.postgres.triggers import get_all_pg_obj
 
 register_entities(get_all_pg_obj())
 
