@@ -1,44 +1,12 @@
- # индификаторы - id у фильмов и узера изменить на уникальные UUid
- # tokens_schemas userout - убрать к хуям
- # ссылку редирект надо в конфигах прописать ---- user_account
+
  
- 
- python3 -m venv env
 
- source env/bin/activate
+1 -- скачиваете докер (лучше Docker-Desktop)
 
- source env/bin/activate
+2 -- docker compose up -d
 
- create file named .env and write in it :
+3 -- бд работает на 5432 порту - если у вас на этом же порту работет ваша бд то еужно либо оффеуть ее или в docker-compose указать 5433:5432
 
-'''
+4 -- перезапустить контейнер migrations (он почему то отваливается при запуске)
 
- DB_HOST = ""
-
- DB_PORT = ""
-
- DB_NAME = ""
-
- DB_USER = ""
-
- DB_PASSWORD = ""
-
- SECRET = "" -- any string
-
- ALGORITHM = "HS256"
-
- ACCESS_TOKEN_TTL = "P{days}DT{hours}H{minutes}M{sec}S"
-
- REFRESH_TOKEN_TTL = "P{days}DT{hours}H{minutes}M{sec}S" -- REFRESH_TOKEN_TTL greater than ACCESS_TOKEN_TTL
-
- '''
-
-
-
- pip install -r requirements.txt
-
- https://firstvds.ru/technology/ustanovka-postgresql-na-ubuntu
-
- alembic upgrade head
-
-uvicorn app.main:app --reload
+5 -- весь бек доступен по префиксу api/v1 - за документацией по каждому из серисов обращаться по http://localhost:8000/{то что написанно для каждого сервиса в nginx_config}/docs
