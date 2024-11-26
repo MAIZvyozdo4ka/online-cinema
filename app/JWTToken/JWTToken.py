@@ -10,20 +10,22 @@ class JWTToken:
     
     
     @classmethod
-    def generate_access_token(cls, token_data : IssuedJWTTokenData) -> str:
+    def generate_access_token(cls, token_data : IssuedJWTTokenData, payload : NonPrivateUserInfoOut) -> str:
         return cls.__sign_token(
             type = JWTTokenType.ACCESS,
             token_data = token_data,
+            payload = payload,
             ttl = jwtsettings.ACCESS_TOKEN_TTL
         )
         
         
     
     @classmethod
-    def generate_refresh_token(cls, token_data : IssuedJWTTokenData) -> str:
+    def generate_refresh_token(cls, token_data : IssuedJWTTokenData, payload : NonPrivateUserInfoOut) -> str:
         return cls.__sign_token(
             type = JWTTokenType.REFRESH,
             token_data = token_data,
+            payload = payload,
             ttl = jwtsettings.REFRESH_TOKEN_TTL
         )
       
@@ -66,20 +68,19 @@ class JWTToken:
     
     
     @classmethod
-    def __sign_token(cls, type: str, token_data : IssuedJWTTokenData, ttl : timedelta) -> str:
+    def __sign_token(cls, type: str, token_data : IssuedJWTTokenData, payload : NonPrivateUserInfoOut, ttl : timedelta) -> str:
         numeric_date_time_now = cls.get_numeric_date_time_now()
         
-        payload = {
+        default_payload = {
             'iss' : 'zvezdochka@auth_service',
             'type' : type,
             'iat' : numeric_date_time_now,
             'exp' : numeric_date_time_now  + int(ttl.total_seconds())
         }
-        payload = payload | token_data.model_dump()
-        payload['jti'] = str(payload['jti'])
-        print(payload)
+        full_payload = default_payload | payload.model_dump() | token_data.model_dump()
+        full_payload['jti'] = str(full_payload['jti'])
         
-        return jwt.encode(payload = payload, key = jwtsettings.SECRET, algorithm = jwtsettings.ALGORITHM)
+        return jwt.encode(payload = full_payload, key = jwtsettings.SECRET, algorithm = jwtsettings.ALGORITHM)
     
     
     @staticmethod
@@ -92,14 +93,11 @@ class JWTToken:
     def generate_tokens(cls, payload : NonPrivateUserInfoOut) -> IssuedJWTTokensWithDataOut:
         device_id = cls.generate_device_id()
         
-        access_token_data, refresh_token_data = [IssuedJWTTokenData(device_id = device_id,
-                                                                    **payload.model_dump()
-                                                                ) for _ in range(2)
-                                                            ]
+        access_token_data, refresh_token_data = [IssuedJWTTokenData(device_id = device_id) for _ in range(2)]
         return IssuedJWTTokensWithDataOut(
                         tokens = IssuedJWTTokensOut(
-                            access_token = JWTToken.generate_access_token(access_token_data),
-                            refresh_token = JWTToken.generate_refresh_token(refresh_token_data)
+                            access_token = JWTToken.generate_access_token(access_token_data, payload),
+                            refresh_token = JWTToken.generate_refresh_token(refresh_token_data, payload)
                         ),
                         data = (access_token_data, refresh_token_data)
                     )

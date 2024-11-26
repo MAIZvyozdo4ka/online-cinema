@@ -6,12 +6,16 @@ from app.user.schemas import NonPrivateUserInfoOut
 
 
 
-class IssuedJWTTokenData(NonPrivateUserInfoOut):
+class IssuedJWTTokenData(BaseModel):
     
     jti : UUID = Field(description = 'UUID токена', default_factory = uuid4)
     device_id : str = Field(description = 'Индификатор устройства')
     
     model_config = ConfigDict(title = 'Информация о токене')
+    
+    
+class IssuedJWTTokenPayloadOut(IssuedJWTTokenData, NonPrivateUserInfoOut):
+    pass
     
     
     

@@ -7,7 +7,8 @@ from .user import user_router
 
 
 
-app = FastAPI(exception_handlers = {
+app = FastAPI(  
+        exception_handlers = {
         BaseHTTPExeption : http_exeption_handler
     }
 )
