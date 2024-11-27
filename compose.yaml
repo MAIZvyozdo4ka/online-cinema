@@ -11,20 +11,25 @@ services:
       ./postgres.env
     networks:
       - app-network
-    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost -p 5432"]
+      interval: 10s
+      retries: 5
+      start_period: 1s
+      timeout: 5s
   migrations:
-    build: 
+    build:
       context: .
       dockerfile: migrations.Dockerfile
-    command: "alembic upgrade head"
+    command: ["sh", "-c", "until pg_isready -U postgres -h postgres -p 5432; do echo Waiting for DB; sleep 2; done; alembic upgrade head"]
     volumes:
       - ./migration:/code/migration
       - ./core:/code/core
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
-  
   auth-service:
     build: ./auth-service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
