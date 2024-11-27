@@ -1,0 +1,117 @@
+
+
+
+services:
+  postgres:
+    image: postgres:13-alpine
+    restart: always
+    ports:
+      - 5432:5432
+    env_file:
+      ./postgres.env
+    networks:
+      - app-network
+    
+  migrations:
+    build: 
+      context: .
+      dockerfile: migrations.Dockerfile
+    command: "alembic upgrade head"
+    volumes:
+      - ./migration:/code/migration
+      - ./core:/code/core
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+  
+  auth-service:
+    build: ./auth-service
+    command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - 8001:8000
+    volumes:
+      - ./auth-service/app:/code/app
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
+  movie-service:
+    build: ./movie-service
+    command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - 8002:8000
+    volumes:
+      - ./movie-service/app:/code/app
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
+  rating-service:
+    build: ./rating-service
+    command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - 8003:8000
+    volumes:
+      - ./rating-service/app:/code/app
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
+  review-service:
+    build: ./review-service
+    command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - 8004:8000
+    volumes:
+      - ./review-service/app:/code/app
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
+  user-service:
+    build: ./user-service
+    command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - 8005:8000
+    volumes:
+      - ./user-service/app:/code/app
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
+  nginx-reverse-proxy:
+    image: nginx:latest
+    ports:
+      - 8000:8080
+    volumes:
+      - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - auth-service
+      - rating-service
+      - movie-service
+      - review-service
+      - user-service
+    networks:
+      - app-network
+
+
+
+networks:
+  app-network:
+    driver: bridge
