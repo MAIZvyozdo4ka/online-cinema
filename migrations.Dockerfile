@@ -1,8 +1,8 @@
 
-FROM python:3.12-slim
+FROM python:3.12-alpine
 
 WORKDIR /code
-
+RUN apk add --no-cache gcc musl-dev libffi-dev postgresql-client
 COPY requirements.txt /code/requirements.txt
 
 RUN pip install --upgrade pip
