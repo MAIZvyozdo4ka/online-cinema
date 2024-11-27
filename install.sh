@@ -2,7 +2,7 @@
 
 # Указываем пути к архиву и директории внутри скрипта
 ZIP_FILE="data/csv_data.zip"    # Путь к ZIP-архиву
-DEST_DIR="migration/csv_data/"   # Путь к директории для распаковки
+DEST_DIR="migration/versions/csv_data"   # Путь к директории для распаковки
 
 # Проверка существования архива
 if [ ! -f "$ZIP_FILE" ]; then
