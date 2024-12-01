@@ -13,3 +13,5 @@ kagglehub
 pandas
 numpy
 scikit-learn
+elasticsearch[async]
+aiohttp

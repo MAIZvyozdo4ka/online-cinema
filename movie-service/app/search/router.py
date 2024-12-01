@@ -12,9 +12,10 @@ router = APIRouter(prefix = '/search', tags = ['Поиск'], responses = Search
 
 @router.get(path = '', summary = 'Поиск фильмов')
 async def search(parametrs : Annotated[TextSearchIn, Query()]) -> list[MoviePreviewOut]:
-
     return await SearchDAO.search_movies_by_input_text(text = parametrs.text)
 
 
-
+@router.on_event("shutdown")
+async def shutdown_event():
+    await SearchDAO.close_elasticsearch()
     

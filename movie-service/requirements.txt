@@ -10,3 +10,5 @@ pyjwt
 alembic_utils
 aioboto3
 Jinja2
+elasticsearch[async]
+aiohttp
