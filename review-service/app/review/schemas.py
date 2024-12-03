@@ -1,6 +1,5 @@
 from pydantic import ConfigDict, computed_field, PositiveInt
-from core.schemas import ModelWithPrivateUserIdAndMovieId, BaseDeletedModel, UserActionOut, BaseModel, ShowUserActionMoiveOut
-from ..schemas import ReviewMovie
+from core.schemas import ModelWithPrivateUserIdAndMovieId, BaseDeletedModel, UserActionOut, BaseModel, ShowUserActionMoiveOut, ReviewMovie
     
     
     

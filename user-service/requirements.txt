@@ -8,3 +8,4 @@ asyncpg
 sqlalchemy-utils
 pyjwt
 alembic_utils
+aioboto3

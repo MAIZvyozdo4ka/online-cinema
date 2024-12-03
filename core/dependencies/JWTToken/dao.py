@@ -1,20 +1,20 @@
 from core.models.postgres import IssuedJWTTokenDB
 from .schemas import IssuedJWTTokensOut
-from .errors import TokenRevokedError, JWTExeption
+from .errors import TokenRevokedError, JWTException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete
 from .JWTToken import JWTToken
-from core.dao.BaseDAO import BaseDAO, AsyncSession
+from core.dao.PostgresDAO import PostgresDAO, AsyncSession
 from core.schemas.user import PrivateUserInfoOut
 
 
 
 
-class JWTTokenDAO(BaseDAO):
+class JWTTokenDAO(PostgresDAO):
     
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def check_token_is_remove(cls, session : AsyncSession, jti : int) -> None:
         token_db = await session.get(IssuedJWTTokenDB, jti)
         
@@ -28,7 +28,7 @@ class JWTTokenDAO(BaseDAO):
                                             cls,
                                             session : AsyncSession,
                                             device_id : str
-                                        ) -> tuple[int | None, JWTExeption | None]:
+                                        ) -> tuple[int | None, JWTException | None]:
         
         query_for_delete_tokens = delete(IssuedJWTTokenDB).where(
                                             IssuedJWTTokenDB.device_id == device_id

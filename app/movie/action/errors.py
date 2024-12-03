@@ -1,17 +1,17 @@
-from app.BaseHTTPExeption import BaseHTTPExeption, BaseHTTPExeptionModel
+from app.BaseHTTPException import BaseHTTPException, BaseHTTPExceptionModel
 from pydantic import Field, ConfigDict
 from fastapi import status
 
 
-class MovieExeptionModel(BaseHTTPExeptionModel):
+class MovieExceptionModel(BaseHTTPExceptionModel):
     
     model_config = ConfigDict(title = 'Ошибка, связанная с фильмом')
     
     
     
-class MovieHTTPExeption(BaseHTTPExeption):
+class MovieHTTPException(BaseHTTPException):
     pass
         
         
 
-MovieNotFoundError = MovieHTTPExeption(status.HTTP_404_NOT_FOUND, MovieExeptionModel(message = 'no movie with this id'))
+MovieNotFoundError = MovieHTTPException(status.HTTP_404_NOT_FOUND, MovieExceptionModel(message = 'no movie with this id'))

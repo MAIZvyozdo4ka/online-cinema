@@ -1,20 +1,20 @@
-from core.exeption import BaseHTTPExeption, BaseHTTPExeptionModel
+from core.exception import BaseHTTPException, BaseHTTPExceptionModel
 from pydantic import Field, ConfigDict
 from fastapi import status
 
 
-class SearchExeptionModel(BaseHTTPExeptionModel):
+class SearchExceptionModel(BaseHTTPExceptionModel):
     
     model_config = ConfigDict(title = 'Ошибка при поиске')
     
     
     
-class SearchHTTPExeption(BaseHTTPExeption):
+class SearchHTTPException(BaseHTTPException):
     pass
         
         
 
-SearchEmptyError = SearchHTTPExeption(status.HTTP_404_NOT_FOUND, SearchExeptionModel(message = 'no movies'))
+SearchEmptyError = SearchHTTPException(status.HTTP_404_NOT_FOUND, SearchExceptionModel(message = 'no movies'))
 
     
 

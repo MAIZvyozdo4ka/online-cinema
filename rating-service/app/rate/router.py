@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Request, Depends, Path
 from .schemas import RateMovieIn, DeleteRateMovieIn, RateMovieOut, ShowUserMovieRatingListOut, RateMovie
 from .dao import RatingDAO
-from .errors import RatingExeption
-from core.dependencies.JWTToken import TokenValidation, JWTExeption
+from .errors import RatingException
+from core.dependencies.JWTToken import TokenValidation, JWTException
 
 
 router = APIRouter(
                     tags = ['Оценка фильмов'], 
                     dependencies = [Depends(TokenValidation.check_access_token)],
-                    responses = JWTExeption.get_responses_schemas() | RatingExeption.get_responses_schemas()
+                    responses = JWTException.get_responses_schemas() | RatingException.get_responses_schemas()
                 )
 
 

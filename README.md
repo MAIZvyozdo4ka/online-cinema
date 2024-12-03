@@ -10,3 +10,11 @@
 4 -- перезапустить контейнер migrations (он почему то отваливается при запуске)
 
 5 -- весь бек доступен по префиксу api/v1 - за документацией по каждому из серисов обращаться по http://localhost:8000/{то что написанно для каждого сервиса в nginx_config}/docs
+
+6 -- admin password - qKXxzXwQ , login - main_admin
+
+7 -- в s3-init создать папку movie_mp4 d нее файлы с фильмами и файл movie.csv с movie_id,"file_path"
+
+<!---
+alembic revision --autogenerate -m ""
+-->

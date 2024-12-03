@@ -11,7 +11,7 @@ class BaseHTTPErrorType(StrEnum):
 
 
 
-class BaseHTTPExeptionModel(BaseModel):
+class BaseHTTPExceptionModel(BaseModel):
     type : BaseHTTPErrorType = Field(description = 'Тип ошибки', default = BaseHTTPErrorType.ERROR)
     message : str = Field(description = 'Подробности')
     
@@ -20,13 +20,13 @@ class BaseHTTPExeptionModel(BaseModel):
 
 
 
-class BaseHTTPExeption(Exception):
+class BaseHTTPException(Exception):
     
     _all_responses_schemas : dict[type, dict[int, dict[str, Any]]] = {}
     
     def __init__(self, 
                 status_code : int,
-                ditail : BaseHTTPExeptionModel,
+                ditail : BaseHTTPExceptionModel,
                 headers : dict[str, str] | None = None,
                 cookies : dict[str, str | dict[str, str]] | None = None,
                 response_schema : dict[str, Any] | None = None
@@ -55,7 +55,7 @@ class BaseHTTPExeption(Exception):
     
     def __registrate_new_obj(self,
                             status_code : int,
-                            ditail : BaseHTTPExeptionModel,
+                            ditail : BaseHTTPExceptionModel,
                             response_schema : dict[str, Any] | None = None
                         ) -> None:
         if response_schema is None:
@@ -81,7 +81,7 @@ class BaseHTTPExeption(Exception):
 
 
 
-async def http_exeption_handler(request: Request, exc: BaseHTTPExeption) -> JSONResponse:
+async def http_Exception_handler(request: Request, exc: BaseHTTPException) -> JSONResponse:
     
     response = JSONResponse(status_code = exc.status_code, content = exc.ditail, headers = exc.headers)
     

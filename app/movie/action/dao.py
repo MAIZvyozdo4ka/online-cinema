@@ -1,17 +1,17 @@
 from .schemas import MovieOut, MovieWithUserInfoOut, MovieRatingOut, ReviewMovieWithUserInfoOut, ReviewMovieWithUserInfoListWithStatisticOut
 from app.database import MovieDB, RatingDB, ReviewDB, StatementReviewType
 from .errors import MovieNotFoundError
-from app.BaseDAO import BaseDAO, AsyncSession
+from app.PostgresDAO import PostgresDAO, AsyncSession
 from sqlalchemy import select, func
 from app.user.movie_action.dao import UserActionDAO
 from sqlalchemy.orm import selectinload
 
 
-class MovieDAO(BaseDAO):
+class MovieDAO(PostgresDAO):
     
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_movie_reviews(cls,
                                 session : AsyncSession,
                                 movie_id : int,
@@ -34,7 +34,7 @@ class MovieDAO(BaseDAO):
         
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_movie_by_id(cls,
                               session : AsyncSession,
                               movie_id : int,
@@ -52,7 +52,7 @@ class MovieDAO(BaseDAO):
                             )
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_movie_rating_by_id(cls, session : AsyncSession, movie_id : int) -> list[MovieRatingOut]:
         
         query_for_select_rating_grouped_by_rating = select(
