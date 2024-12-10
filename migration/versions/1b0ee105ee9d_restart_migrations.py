@@ -24,6 +24,7 @@ def upgrade() -> None:
     movies_table = op.create_table('movies',
     sa.Column('id', sa.Integer(), sa.Identity(always=False, start=1, increment=1), nullable=False),
     sa.Column('title', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=False),
     sa.Column('movies_rating_count', sa.Integer(), nullable=False, server_default='0'),
     sa.Column('movies_rating_sum', sa.Integer(), nullable=False, server_default='0'),
     sa.Column('genres', sa.String(), nullable=False),
@@ -68,8 +69,8 @@ def upgrade() -> None:
     )
    
     TableInit.insert_data_from_file(movies_table,
-                                    'migration/versions/csv_data/new_movie_clear.csv',
-                                    ['id', 'title', 'genres'],
+                                    'migration/versions/csv_data/movie_with_description.csv',
+                                    ['id', 'title', 'genres', 'description'],
                                     [0]
                                 )
     TableInit.insert_data_from_file(links_table,

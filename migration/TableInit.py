@@ -14,7 +14,6 @@ class TableInit:
             
         row = row.replace('\n', '')
         for index, (name, type_) in enumerate(columns_info.items()):
-            
             if row == '':
                 dict_item[name] = None
                 continue
@@ -22,42 +21,73 @@ class TableInit:
                 _, row = row.split(',', 1)
                 continue
             match str(type_):
-                case "<class 'int'>":
-                    if row.count(',') > 0:
-                        value, row = row.split(',', 1)
-                    else:
-                        value, row = row, ''
-                    dict_item[name] = int(value)
                 case "<class 'str'>":
                     value, row = row.removeprefix('"').split('"', 1)
                     dict_item[name] = value
                     row = row.removeprefix(',')
+                case _:
+                    if row.count(',') > 0:
+                        value, row = row.split(',', 1)
+                    else:
+                        value, row = row, ''
+                    dict_item[name] = type_(value)       
                     
         return dict_item
     
     
-    @staticmethod
-    def insert_data_from_file(table : Table, 
-                              file_name : str, 
-                              colums_names : list[str],
-                              ignore_rows : list[int] | None = None
-                              ) -> None:
+    @staticmethod 
+    def parse_data(table : Table, 
+                  file_name : str, 
+                  colums_names : list[str],
+                  ignore_rows : list[int] | None = None
+                ) -> None:
         columns_info : dict[str, type] = {}    
         items : list[dict[str, Any]] = []
 
         for name in colums_names:
             columns_info[name] = table.columns[name].type.python_type
-        
         with open(file = file_name, mode = 'r') as file:
             for item in file:
                 items.append(TableInit.serialize_row(columns_info, item, ignore_rows))
+        return items
+    
+    @classmethod
+    def insert_data_from_file(cls,
+                              table : Table, 
+                              file_name : str, 
+                              colums_names : list[str],
+                              ignore_rows : list[int] | None = None
+                              ) -> None:
             
-        op.bulk_insert(table, items)
+        op.bulk_insert(table, cls.parse_data(table, file_name, colums_names, ignore_rows))
                 
+    @classmethod           
+    def update_data_from_file(cls,
+                              table : Table, 
+                              file_name : str, 
+                              colums_names : list[str],
+                              where_columns : list[str],
+                              ignore_rows : list[int] | None = None
+                              ) -> None:
+        for item in cls.parse_data(table, file_name, colums_names, ignore_rows):
+            where = []
+            for if_column in where_columns:
+                where.append(table.c.__dict__[if_column] == item.pop(if_column))
+            query_for_update = table.update().where(*where).values(item)
+            op.execute(query_for_update)
                 
 
 
 class DatabaseRandomRowsGenrator:
+    
+    @classmethod
+    def add_to_movie_file_movie_description(cls, movie_file_name : str, decription_file_name : str, new_file_name : str) -> None:
+        with open(movie_file_name, 'r') as movie:
+            with open(decription_file_name, 'r') as descr:
+                with open(new_file_name, 'w+') as new:
+                    for i, j in zip(movie, descr):
+                        i = i.removesuffix('\n')
+                        new.write(i + ',' + j.split(',', 1)[1])
     
     @staticmethod
     def clear_user_csv(file_name : str, new_file_name : str) -> None:
@@ -177,7 +207,11 @@ class DatabaseRandomRowsGenrator:
             
             
             
-
+#DatabaseRandomRowsGenrator.add_to_movie_file_movie_description(
+#    'migration/versions/csv_data/new_movie_clear.csv',
+#    'migration/versions/csv_data/movie_description.csv',
+#    'migration/versions/csv_data/movie_with_description.csv'
+#)
 
 
         

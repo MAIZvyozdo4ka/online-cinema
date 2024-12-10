@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request
 from core.schemas import PrivateUserInfoOut
 from fastapi.responses import RedirectResponse
 from .dao import UserAccountDAO
-from core.dependencies.JWTToken import JWTExeption, TokenValidation
+from core.dependencies.JWTToken import JWTException, TokenValidation
 from core.services_and_endpoints import servicesurls, endpoints
 
 
@@ -10,7 +10,7 @@ from core.services_and_endpoints import servicesurls, endpoints
 router = APIRouter(
                    tags = ['Пользовательский аккаунт'],
                    dependencies = [Depends(TokenValidation.check_access_token)],
-                   responses = JWTExeption.get_responses_schemas()
+                   responses = JWTException.get_responses_schemas()
                 )
 
 
@@ -22,13 +22,13 @@ async def user_account(request : Request) -> PrivateUserInfoOut:
     
     
 @router.get(path = '/logout', summary = 'Выход из аккаунта')
-async def logout(request : Request) -> RedirectResponse:
+async def logout(request : Request) -> str:
     await UserAccountDAO.logout(request.state.user.device_id)
-    return RedirectResponse(endpoints.LOGIN_ENDPOINT)
+    return endpoints.LOGIN_ENDPOINT
 
 
 
 @router.get(path = '/full-logout', summary = 'Выход из аккаунта со всех устройств')
-async def full_logout(request : Request) -> RedirectResponse:
+async def full_logout(request : Request) -> str:
     await UserAccountDAO.full_logout(request.state.user.user_id)
-    return RedirectResponse(endpoints.LOGIN_ENDPOINT)
+    return endpoints.LOGIN_ENDPOINT

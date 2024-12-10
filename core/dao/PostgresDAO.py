@@ -1,11 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.models.postgres import async_session_maker
-from core.exeption.BaseHTTPExeption import BaseHTTPExeption
+from core.exception.BaseHTTPException import BaseHTTPException
 from typing import Any
 
 
 
-class BaseDAO:
+class PostgresDAO:
+    
     
     
     @staticmethod
@@ -32,8 +33,8 @@ class BaseDAO:
         
         def decorator(func):
             
-            async def wrapper(cls_or_self : BaseDAO | type[BaseDAO] | None = None, *args, **kwargs):
-                responce_error : BaseHTTPExeption | None = None
+            async def wrapper(cls_or_self : PostgresDAO | type[PostgresDAO] | None = None, *args, **kwargs):
+                responce_error : BaseHTTPException | None = None
                 sess, args, kwargs = cls.__find_session_in_args_kw(*args, **kwargs)
                 
                 if sess is not None:
@@ -42,7 +43,7 @@ class BaseDAO:
                 async with cls.__get_correct_session(auto_commit) as session:
                     try:
                         return await func(cls_or_self, session, *args, **kwargs)
-                    except BaseHTTPExeption as error:
+                    except BaseHTTPException as error:
                         responce_error = error
 
                     if not ignore_http_errors:

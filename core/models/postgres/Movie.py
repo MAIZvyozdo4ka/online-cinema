@@ -15,8 +15,9 @@ class MovieDB(Base):
     movie_rating_sum : Mapped[int] = mapped_column(server_default = '0')
     movie_reviews_count : Mapped[int] = mapped_column(server_default = '0')
     genres : Mapped[str]
+    description : Mapped[str]
     
-    link = one_to_one_relationship('LinkDB', lazy = 'selectin')
+    link = one_to_one_relationship('LinkDB')
     movie_rating = many_to_many_relationship('RatingDB', back_populates = 'movie')
     movie_reviews = many_to_many_relationship('ReviewDB', back_populates = 'movie')
 

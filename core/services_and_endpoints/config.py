@@ -4,9 +4,10 @@ from os.path import abspath, dirname, join
 
 class ServicesURLsSettings(BaseSettings):
     AUTH_SERVICE : str
+    S3 : str
     model_config = SettingsConfigDict(
         extra = 'ignore',
-        env_file = dirname(abspath(__file__)) + '/services.env',
+        env_file = dirname(dirname(abspath(__file__))) + '/env/services.env',
         frozen = True
     )
     
@@ -14,10 +15,11 @@ class ServicesURLsSettings(BaseSettings):
 class EndpointsSettings(BaseSettings):
     LOGIN_ENDPOINT : str
     REGISTRATION_ENDPOINT : str
+    MOVIE_ENDPOINT : str
     
     model_config = SettingsConfigDict(
         extra = 'ignore',
-        env_file = dirname(abspath(__file__)) + '/endpoints.env',
+        env_file = dirname(dirname(abspath(__file__))) + '/env/endpoints.env',
         frozen = True
     )
     

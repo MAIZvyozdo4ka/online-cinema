@@ -1,14 +1,14 @@
 from .schemas import ReviewMovieWithUserInfoOut, ReviewMovieWithUserInfoListWithStatisticOut, ReviewMovie
 from core.models.postgres import ReviewDB, StatementReviewType
-from core.dao import BaseDAO, AsyncSession
+from core.dao import PostgresDAO, AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 
-class MovieRewivewDAO(BaseDAO):
+class MovieRewivewDAO(PostgresDAO):
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_user_review_by_user_id(cls,
                                           session : AsyncSession,
                                           movie_id : int,
@@ -21,11 +21,12 @@ class MovieRewivewDAO(BaseDAO):
     
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_movie_reviews(cls,
                                 session : AsyncSession,
                                 movie_id : int,
-                                limit : int | None = None
+                                limit : int | None = None,
+                                offset : int | None = None
                             ) -> list[ReviewMovieWithUserInfoOut]:
         query_for_select_movies_reviews = select(ReviewDB).options(
                                                             selectinload(ReviewDB.user)
@@ -36,6 +37,9 @@ class MovieRewivewDAO(BaseDAO):
                                                         )
         if limit is not None:
             query_for_select_movies_reviews = query_for_select_movies_reviews.limit(limit)
+        
+        if offset is not None:
+            query_for_select_movies_reviews = query_for_select_movies_reviews.offset(offset)
         
         movie_reviews = await session.scalars(query_for_select_movies_reviews)
         return [ReviewMovieWithUserInfoOut.model_validate(review) for review in movie_reviews]

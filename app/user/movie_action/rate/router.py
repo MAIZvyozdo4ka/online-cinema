@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Request
 from .schemas import RateMovieIn, DeleteRateMovieIn, RateMovieOut
 from .dao import RatingDAO
-from .errors import RatingExeption
+from .errors import RatingException
 
 
 router = APIRouter(
                     tags = ['Оценка фильма'], 
-                    responses = RatingExeption.get_responses_schemas()
+                    responses = RatingException.get_responses_schemas()
                 )
 
 

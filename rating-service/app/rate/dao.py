@@ -6,7 +6,7 @@ from .schemas import (RateMovieIn,
                     )
 from core.models.postgres import RatingDB
 from .errors import RateNotFoundError, MovieNotFoundError
-from core.dao import BaseDAO, AsyncSession, UserActionDAO
+from core.dao import PostgresDAO, AsyncSession, UserActionDAO
 from core.schemas import SuccessUserActionStatusType
 
 
@@ -15,7 +15,7 @@ class RatingDAO(UserActionDAO):
     
 
     @classmethod
-    @BaseDAO.get_session(auto_commit = True)
+    @PostgresDAO.get_session(auto_commit = True)
     async def update_user_movie_rating(cls, session : AsyncSession, rating_form : RateMovieIn) -> RateMovieOut:
         await cls.update_user_movie_rating_or_review(session, RatingDB, rating_form)
         return RateMovieOut(status = SuccessUserActionStatusType.SUCCESS_UPDATE)
@@ -23,7 +23,7 @@ class RatingDAO(UserActionDAO):
     
     
     @classmethod
-    @BaseDAO.get_session(auto_commit = True)
+    @PostgresDAO.get_session(auto_commit = True)
     async def try_insert_user_movie_rating(cls, session : AsyncSession, rating_form : RateMovieIn) -> RateMovieOut:
         await cls.try_insert_user_movie_rating_review(session, RatingDB, rating_form)
         
@@ -44,7 +44,7 @@ class RatingDAO(UserActionDAO):
         
     
     @classmethod
-    @BaseDAO.get_session(auto_commit = True)
+    @PostgresDAO.get_session(auto_commit = True)
     async def delete_rate_movie(cls, session : AsyncSession, delete_form : DeleteRateMovieIn) -> RateMovieOut:
         rating = await cls.delete_user_rating_or_review_movie(session, RatingDB, delete_form)
         

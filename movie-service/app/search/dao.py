@@ -3,14 +3,14 @@ from core.models.postgres import MovieDB
 from sqlalchemy import select
 from typing import Any
 from .errors import SearchEmptyError
-from core.dao import BaseDAO, AsyncSession
+from core.dao import PostgresDAO, AsyncSession
 
 
 
-class SearchDAO(BaseDAO):
+class SearchDAO(PostgresDAO):
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def search_movies_by_input_text(
                                         cls,
                                         session : AsyncSession,

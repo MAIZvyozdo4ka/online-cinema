@@ -10,11 +10,10 @@ class JWTTokenSettings(BaseSettings):
     REFRESH_TOKEN_TTL : timedelta
     model_config = SettingsConfigDict(
         extra = 'ignore',
-        env_file = dirname(abspath(__file__)) + '/jwttoken.env',
+        env_file = dirname(dirname(dirname(abspath(__file__)))) + '/env/jwttoken.env',
         frozen = True
     )
-    
-    
+
 
 jwtsettings = JWTTokenSettings()
 

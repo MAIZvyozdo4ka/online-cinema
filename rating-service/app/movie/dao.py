@@ -3,14 +3,14 @@ from .schemas import (
                       RateMovie
                     )
 from core.models.postgres import RatingDB
-from core.dao.BaseDAO import BaseDAO, AsyncSession
+from core.dao.PostgresDAO import PostgresDAO, AsyncSession
 from sqlalchemy import select, func
 
 
-class MovieRatingDAO(BaseDAO):
+class MovieRatingDAO(PostgresDAO):
 
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_movie_rating_by_id(cls, session : AsyncSession, movie_id : int) -> list[MovieRatingOut]:
         
         query_for_select_rating_grouped_by_rating = select(
@@ -30,7 +30,7 @@ class MovieRatingDAO(BaseDAO):
     
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_user_movie_rating_by_user_id(cls,
                                                session : AsyncSession,
                                                movie_id : int,
