@@ -42,8 +42,18 @@ class MovieRecommender:
         score = this_user_similarity.T @ user_movie_matrix
         return score.T
     
-    def recommend(self, user_id, top_n=5):
+    def get_default_recommendations(self, top_n=10):
+        movie_ratings = self.user_data.groupby('movieId')['rating'].agg(['mean', 'count'])
+        movie_ratings.columns = ['average_rating', 'rating_count']
+        popular_movies = self.movie_data.merge(movie_ratings, on='movieId')
+        popular_movies = popular_movies.sort_values(by=['average_rating', 'rating_count'], ascending=[False, False])
+        default_recommendations = popular_movies[['title', 'genres']].head(top_n)
+        return default_recommendations
+    
+    def recommend(self, user_id, top_n=10):
         user_id = "my_" + str(user_id)
+        if not ( user_id in self.my_users['userId'].values):
+            return  self.get_default_recommendations(top_n)
         genre_score = self.get_genre_score(user_id)
         user_score = self.get_user_score(user_id)
         scaler = MinMaxScaler()
@@ -57,9 +67,10 @@ class MovieRecommender:
         watched_movies_list = watched_movies.tolist()
         filtered_df = sorted_df[~sorted_df.index.isin(watched_movies_list)]
         cutted_df = filtered_df.head(40)
+
         recommended_movies = cutted_df.merge(self.movie_data, left_index=True, right_on='movieId')
         recommended_movies = recommended_movies[['title', 'genres', 'combined_score']]
-        return recommended_movies
+        return recommended_movies.head(top_n)
 
 recommender = MovieRecommender(user_file, dataset_file, movie_file)
 
