@@ -10,7 +10,7 @@ class DBSettings(BaseSettings):
     POSTGRES_PASSWORD : str
     model_config = SettingsConfigDict(
         extra = 'ignore',
-        env_file = dirname(abspath(__file__)) + '/connection.env',
+        env_file = dirname(dirname(dirname(abspath(__file__)))) + '/env/postgres_connection.env',
         frozen = True
     )
 

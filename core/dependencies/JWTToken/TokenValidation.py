@@ -50,7 +50,7 @@ class TokenValidation:
         request: Request,
         authorization_header: str = Security(APIKeyHeader(name = 'Authorization', auto_error = False))
     ) -> str:
-    
+        
         clear_token = cls.__try_to_get_clear_token(authorization_header = authorization_header)
 
         payload = cls.check_token_payload(clear_token, JWTTokenType.ACCESS)
@@ -83,7 +83,7 @@ class TokenValidation:
     ) -> str | None:
         try:
             return await cls.check_access_token(request = request, authorization_header = authorization_header)
-        except JWTExeption as error:
+        except JWTException as error:
             request.state.error = error
             request.state.user = None
             

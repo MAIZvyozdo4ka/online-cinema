@@ -1,4 +1,4 @@
-from .BaseDAO import BaseDAO, AsyncSession
+from .PostgresDAO import PostgresDAO, AsyncSession
 from sqlalchemy import delete, insert, update, ScalarResult, select
 from core.schemas import BaseDeletedModel, ModelWithPrivateUserIdAndMovieId, UserActionOut
 from core.models.postgres import RatingDB, ReviewDB
@@ -6,12 +6,12 @@ from asyncpg.exceptions import UniqueViolationError, ForeignKeyViolationError
 from sqlalchemy.exc import IntegrityError
 from typing import Callable
 from sqlalchemy.orm import selectinload
-from core.exeption import BaseHTTPExeption
+from core.exception import BaseHTTPException
 
 
 
 
-class UserActionDAO(BaseDAO):
+class UserActionDAO(PostgresDAO):
         
     @classmethod
     async def delete_user_rating_or_review_movie(cls,   
@@ -65,7 +65,7 @@ class UserActionDAO(BaseDAO):
                                    inserted_func : Callable[[ModelWithPrivateUserIdAndMovieId], UserActionOut],
                                    updated_func : Callable[[ModelWithPrivateUserIdAndMovieId], UserActionOut],
                                    form : ModelWithPrivateUserIdAndMovieId,
-                                   error : BaseHTTPExeption
+                                   error : BaseHTTPException
                                 ) -> UserActionOut:
         try:
             return await inserted_func(form)
@@ -76,7 +76,7 @@ class UserActionDAO(BaseDAO):
         
         
     @classmethod    
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_user_movies_rating_or_reviews(cls,
                                                 session : AsyncSession,
                                                 db_model : type[RatingDB] | type[ReviewDB],

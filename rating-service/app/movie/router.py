@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request, Depends, Path
 from core.dependencies.JWTToken import TokenValidation
 from pydantic import PositiveInt
 from typing import Annotated
+from core.schemas import MovieID
 from .schemas import MovieRatingOut, RateMovie
 from .dao import MovieRatingDAO
 
@@ -11,7 +12,7 @@ router = APIRouter(prefix = '/movie/{movie_id}', tags = ['Оценка филь�
 
 
 @router.get(path = '', summary = 'Статистика оценок фильма')
-async def get_movie_retings_by_id(movie_id : Annotated[PositiveInt, Path(le = 10_000_000)]) -> list[MovieRatingOut]:
+async def get_movie_retings_by_id(movie_id : Annotated[MovieID, Path()]) -> list[MovieRatingOut]:
     return await MovieRatingDAO.get_movie_rating_by_id(movie_id)
 
 
@@ -20,7 +21,7 @@ async def get_movie_retings_by_id(movie_id : Annotated[PositiveInt, Path(le = 10
             summary = 'Оценка пользователя определенного фильма',
             dependencies = [Depends(TokenValidation.weak_check_access_token)]
         )
-async def get_movie_by_id(request : Request, movie_id : Annotated[PositiveInt, Path(le = 10_000_000)]) -> RateMovie | None:
+async def get_movie_by_id(request : Request, movie_id : Annotated[MovieID, Path()]) -> RateMovie | None:
     if request.state.user is None:
         return None
     

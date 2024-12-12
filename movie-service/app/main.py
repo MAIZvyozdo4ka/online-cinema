@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from core.exeption import BaseHTTPExeption, http_exeption_handler
+from fastapi.staticfiles import StaticFiles
+from core.exception import BaseHTTPException, http_Exception_handler
 from .action import action_router
 from .search import search_router
 
@@ -8,7 +9,7 @@ from .search import search_router
 app = FastAPI(  
         root_path = '/api/v1',
         exception_handlers = {
-        BaseHTTPExeption : http_exeption_handler
+        BaseHTTPException : http_Exception_handler
     }
 )
 
@@ -19,6 +20,8 @@ app.add_middleware(
     allow_methods=["*"],  # Разрешаем все методы (GET, POST и т.д.)
     allow_headers=["*"],  # Разрешаем все заголовки
 )
+
+app.mount("/static", StaticFiles(directory="./app/static"), name="static")
 
 app.include_router(search_router)
 app.include_router(action_router)

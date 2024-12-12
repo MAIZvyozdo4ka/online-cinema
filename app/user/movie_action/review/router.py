@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Request
 from .dao import ReviewDAO
-from .errors import ReviewExeption
+from .errors import ReviewException
 from .schemas import ReviewMovieOut, ReviewMovieIn, DeleteReviewMovieIn
 
 
 router = APIRouter(
                     tags = ['Отзыв фильма'],
-                    responses = ReviewExeption.get_responses_schemas()
+                    responses = ReviewException.get_responses_schemas()
                 )
 
 

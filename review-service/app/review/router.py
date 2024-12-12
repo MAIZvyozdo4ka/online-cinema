@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Request, Depends
 from .dao import ReviewDAO
-from .errors import ReviewExeption
+from .errors import ReviewException
 from .schemas import ReviewMovieOut, ReviewMovieIn, DeleteReviewMovieIn, ShowUserMovieReviewsListOut
-from core.dependencies.JWTToken import TokenValidation, JWTExeption
+from core.dependencies.JWTToken import TokenValidation, JWTException
 
 router = APIRouter(
                     dependencies = [Depends(TokenValidation.check_access_token)],
                     tags = ['Отзыв фильма'],
-                    responses = ReviewExeption.get_responses_schemas() | JWTExeption.get_responses_schemas()
+                    responses = ReviewException.get_responses_schemas() | JWTException.get_responses_schemas()
                 )
 
 

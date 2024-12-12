@@ -4,15 +4,15 @@ from core.models.postgres import UserRole
 
 
 class NonPrivateUserInfo(BaseModel):
-    username : str = Field(min_length = 4, description = 'Ник пользователя')
+    username : str = Field(min_length = 4, max_length = 50, description = 'Ник пользователя')
     
     model_config = ConfigDict(title = 'Короткая инормация о пользователе')
  
 
 class PrivateUserInfo(NonPrivateUserInfo):
-    first_name : str = Field(min_length = 1, description = 'Имя пользователя')
-    last_name : str = Field(min_length = 1,description = 'Фамилия пользователя')
-    email : EmailStr = Field(description = 'Почта пользователя')   
+    first_name : str = Field(min_length = 1, max_length = 50, xdescription = 'Имя пользователя')
+    last_name : str = Field(min_length = 1, max_length = 50, description = 'Фамилия пользователя')
+    email : EmailStr = Field(min_length = 1, max_length = 50, description = 'Почта пользователя')   
     
 
 class NonPrivateUserInfoOut(NonPrivateUserInfo):

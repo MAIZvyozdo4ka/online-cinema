@@ -1,7 +1,7 @@
 from pydantic import Field, ConfigDict, field_serializer, PositiveInt, computed_field, PrivateAttr
 from .BaseModel import BaseModel
 from enum import StrEnum, auto
-from .movie import MovieModelOut
+from .movie import MovieModelOut, MovieID
 from datetime import datetime
 
 
@@ -23,7 +23,7 @@ class UserActionOut(BaseModel):
  
 class ModelWithPrivateUserIdAndMovieId(BaseModel):
     _user_id : int = PrivateAttr()
-    movie_id : PositiveInt = Field(le = 10_000_000, description = 'ID фильма')
+    movie_id : MovieID = Field(description = 'ID фильма')
     
     @computed_field(alias = 'user_id')
     @property

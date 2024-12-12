@@ -1,36 +1,26 @@
-from core.schemas.movie import MovieModelOut, BaseModel
-from pydantic import Field, ConfigDict, field_serializer
-
-
-
-class LinksForAnotherSiteModel(BaseModel):
-    
-    imdb_link : int | None = Field(default = None, validation_alias = 'imdb_id', description = 'Ссылка на IMDB')
-    tmbd_link : int | None = Field(default = None, validation_alias = 'tmbd_id', description = 'Ссылка на TMDB')
-    
-    model_config = ConfigDict(title = 'Cсылки на другие сайты')
+from core.schemas import MovieModelOut, LinksForAnotherSite, is_movie_id
+from pydantic import Field, ConfigDict, field_validator, AnyUrl
+from typing import Any
     
     
+class LinksForAnotherSiteOut(LinksForAnotherSite):
     
     
-class LinksForAnotherSiteOut(LinksForAnotherSiteModel):
-    
-    @field_serializer('imdb_link')
+    @field_validator('tmbd_link', mode = 'before')
     @classmethod
-    def serializer_imdb_link(cls, imdb_link : int | None) -> str:
-        if imdb_link is None:
-            return ''
-        zeros_count : int = 7 - len(str(imdb_link))
-        return f'https://www.imdb.com/title/tt{"0" * zeros_count}{imdb_link}'
+    def tmdb_link_validator(cls, tmbd_id : Any) -> AnyUrl | None:
+        if isinstance(tmbd_id, int) and is_movie_id(tmbd_id):
+            return AnyUrl(f'https://www.themoviedb.org/movie/{tmbd_id}')
+        return super().tmdb_link_validator(tmbd_id)
     
     
-    @field_serializer('tmbd_link')
+    @field_validator('imdb_link', mode = 'before')
     @classmethod
-    def serializer_tmdb_link(cls, tmbd_link : int | None) -> str:
-        if tmbd_link is None:
-            return ''
-        return f'https://www.themoviedb.org/movie/{tmbd_link}'
-  
+    def imdb_link_validator(cls, imdb_id : Any) -> AnyUrl | None:
+        if isinstance(imdb_id, int) and is_movie_id(imdb_id):
+            zero_count : int = 7 - len(str(imdb_id))
+            return AnyUrl(f'https://www.imdb.com/title/tt{"0" * zero_count}{imdb_id}')
+        return super().imdb_link_validator(imdb_id)
   
 
 

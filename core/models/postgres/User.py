@@ -12,6 +12,10 @@ class UserRole(StrEnum):
     moderator = auto()
     user = auto()
     
+    def is_admin(self : 'UserRole') -> bool:
+        return self == UserRole.admin
+    
+    
     
 
 class UserDB(Base):
@@ -43,3 +47,4 @@ class UserDB(Base):
             return None
         
         return len(self.user_movies_review)
+

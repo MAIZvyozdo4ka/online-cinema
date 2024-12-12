@@ -7,7 +7,11 @@ import UpdateTokensPage from './pages/UpdateTokensPage';
 import AccountPage from './pages/AccountPage';
 import LogoutPage from './pages/LogoutPage';
 import FullLogoutPage from './pages/FullLogoutPage';
-import MoviePage from './pages/MoviePage'; // Импорт страницы с информацией о фильме
+import MoviePage from './pages/MoviePage'; // Страница просмотра конкретного фильма
+import AdminPage from './pages/AdminPage';
+import ModeratorPage from './pages/ModeratorPage';
+import AdminMovieFilesPage from './pages/AdminMovieFilesPage'; // Новая страница для работы с файлами фильмов
+import AdminRolesPage from './pages/AdminRolesPage'; // Новая страница для управления ролями
 
 function App() {
     return (
@@ -20,7 +24,11 @@ function App() {
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/logout" element={<LogoutPage />} />
                 <Route path="/full-logout" element={<FullLogoutPage />} />
-                <Route path="/movie/:movieId" element={<MoviePage />} /> {/* Новый маршрут для просмотра фильма */}
+                <Route path="/movie/:movieId" element={<MoviePage />} /> 
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/admin/movie-files" element={<AdminMovieFilesPage />} />
+                <Route path="/admin/roles" element={<AdminRolesPage />} />
+                <Route path="/moderator" element={<ModeratorPage />} />
             </Routes>
         </Router>
     );

@@ -1,4 +1,4 @@
-from app.BaseHTTPExeption import BaseHTTPExeption, BaseHTTPExeptionModel
+from app.BaseHTTPException import BaseHTTPException, BaseHTTPExceptionModel
 from pydantic import ConfigDict
 from enum import StrEnum, auto
 from fastapi import status
@@ -10,7 +10,7 @@ class RateErrorType(StrEnum):
 
 
 
-class RatingExeptionModel(BaseHTTPExeptionModel):
+class RatingExceptionModel(BaseHTTPExceptionModel):
     
     type : RateErrorType
     
@@ -19,20 +19,20 @@ class RatingExeptionModel(BaseHTTPExeptionModel):
 
 
 
-class RatingExeption(BaseHTTPExeption):
+class RatingException(BaseHTTPException):
     pass
 
 
 
-RateNotFoundError = RatingExeption(status_code = status.HTTP_400_BAD_REQUEST,
-                                         ditail = RatingExeptionModel(
+RateNotFoundError = RatingException(status_code = status.HTTP_400_BAD_REQUEST,
+                                         ditail = RatingExceptionModel(
                                                                     type = RateErrorType.RATE_NOT_FOUND,
                                                                     message = 'the score was not found'
                                                                 )
                                         )
 
-MovieNotFoundError = RatingExeption(status_code = status.HTTP_400_BAD_REQUEST,
-                                         ditail = RatingExeptionModel(
+MovieNotFoundError = RatingException(status_code = status.HTTP_400_BAD_REQUEST,
+                                         ditail = RatingExceptionModel(
                                                                     type = RateErrorType.MOVIE_NOT_FOUND,
                                                                     message = 'no movie with this id'
                                                                 )

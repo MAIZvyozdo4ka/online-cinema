@@ -1,16 +1,16 @@
 from app.database import RatingDB
-from app.BaseDAO import BaseDAO, AsyncSession
+from app.PostgresDAO import PostgresDAO, AsyncSession
 from sqlalchemy import select, func, delete, insert, update
 from .schemas import UserMoiveActionsInfo, BaseDeletedModel, ModelWithPrivateUserIdAndMovieId, UserActionOut
 from app.database import RatingDB, ReviewDB
 from asyncpg.exceptions import UniqueViolationError, ForeignKeyViolationError
 from sqlalchemy.exc import IntegrityError
 from typing import Callable
-from app.BaseHTTPExeption import BaseHTTPExeption
+from app.BaseHTTPException import BaseHTTPException
 
 
 
-class UserActionDAO(BaseDAO):
+class UserActionDAO(PostgresDAO):
     
     
     @staticmethod
@@ -81,7 +81,7 @@ class UserActionDAO(BaseDAO):
                                    inserted_func : Callable[[ModelWithPrivateUserIdAndMovieId], UserActionOut],
                                    updated_func : Callable[[ModelWithPrivateUserIdAndMovieId], UserActionOut],
                                    form : ModelWithPrivateUserIdAndMovieId,
-                                   error : BaseHTTPExeption
+                                   error : BaseHTTPException
                                 ) -> UserActionOut:
         try:
             return await inserted_func(form)

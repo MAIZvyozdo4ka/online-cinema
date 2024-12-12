@@ -1,16 +1,16 @@
 from app.database import RatingDB, ReviewDB, UserDB
 from app.JWTToken import JWTTokenDAO
-from app.BaseDAO import BaseDAO, AsyncSession
+from app.PostgresDAO import PostgresDAO, AsyncSession
 from sqlalchemy import select, ScalarResult
 from sqlalchemy.orm import selectinload
 from .schemas import ShowUserMovieRatingOut, ShowUserMovieRatingListOut, ShowUserMovieReviewsListOut, ShowUserMovieReviewsOut
 from app.user.schemas import PrivateUserInfoOut
 
 
-class UserAccountDAO(BaseDAO):
+class UserAccountDAO(PostgresDAO):
     
     @classmethod
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_user_by_user_id(cls, session : AsyncSession, user_id : int) -> PrivateUserInfoOut:
         user = await session.get(UserDB, user_id)
         
@@ -18,14 +18,14 @@ class UserAccountDAO(BaseDAO):
         
     
     @classmethod
-    @BaseDAO.get_session(auto_commit = True)
+    @PostgresDAO.get_session(auto_commit = True)
     async def logout(cls, session : AsyncSession, device_id : str) -> None:
             
         await JWTTokenDAO.delete_user_tokens_by_device_id(session, device_id)
       
       
     @classmethod    
-    @BaseDAO.get_session(auto_commit = True)        
+    @PostgresDAO.get_session(auto_commit = True)        
     async def full_logout(cls, session : AsyncSession, user_id : int) -> None:
             
         await JWTTokenDAO.delete_all_user_tokens_by_user_id(session, user_id)
@@ -47,7 +47,7 @@ class UserAccountDAO(BaseDAO):
         
         
     @classmethod    
-    @BaseDAO.get_session()
+    @PostgresDAO.get_session()
     async def get_user_movies_rating_or_reviews(cls,
                                                 session : AsyncSession,
                                                 db_model : type[RatingDB] | type[ReviewDB],

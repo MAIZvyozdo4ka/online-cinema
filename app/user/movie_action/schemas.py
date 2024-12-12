@@ -52,7 +52,7 @@ class UserMoiveActionsInfo(BaseModel):
     
 class ModelWithPrivateUserIdAndMovieId(BaseModel):
     _user_id : int = PrivateAttr()
-    movie_id : PositiveInt = Field(le = 10_000_000, description = 'ID фильма')
+    movie_id : PositiveInt = Field(le = MAX_MOVIE_ID, description = 'ID фильма')
     
     @computed_field(alias = 'user_id')
     @property

@@ -5,10 +5,20 @@ function HomePage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [movies, setMovies] = useState([]);
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const handleSearch = async (e) => {
         e.preventDefault();
+        if (searchQuery.trim().length < 3) {
+            setError('Search query must be at least 3 characters long.');
+            setMovies([]);
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
         try {
             const response = await fetch(`${API_BASE_URL}/search?text=${encodeURIComponent(searchQuery)}`, {
                 method: 'GET',
@@ -19,15 +29,19 @@ function HomePage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch movies');
+                const errorMessage = errorData.ditail
+                    ? `${errorData.ditail.type}: ${errorData.ditail.message}`
+                    : 'Failed to fetch movies';
+                throw new Error(errorMessage);
             }
 
             const data = await response.json();
             setMovies(data);
-            setError(null);
         } catch (err) {
             setError(err.message);
             setMovies([]);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -65,6 +79,7 @@ function HomePage() {
                 </form>
             </header>
 
+            {isLoading && <p style={{ textAlign: 'center', color: '#007bff' }}>Loading...</p>}
             {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
             <section className="movie-results" style={{ marginTop: '20px' }}>
@@ -83,7 +98,9 @@ function HomePage() {
                         ))}
                     </div>
                 ) : (
-                    <p style={{ textAlign: 'center' }}>No movies found. Try searching for something else!</p>
+                    !isLoading && !error && (
+                        <p style={{ textAlign: 'center' }}>No movies found. Try searching for something else!</p>
+                    )
                 )}
             </section>
 

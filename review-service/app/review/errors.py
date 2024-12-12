@@ -1,7 +1,7 @@
 from pydantic import ConfigDict
 from enum import StrEnum, auto
 from fastapi import status
-from core.exeption import BaseHTTPExeption, BaseHTTPExeptionModel
+from core.exception import BaseHTTPException, BaseHTTPExceptionModel
 
 
 
@@ -12,7 +12,7 @@ class ReviewErrorType(StrEnum):
 
 
 
-class ReviewExeptionModel(BaseHTTPExeptionModel):
+class ReviewExceptionModel(BaseHTTPExceptionModel):
     
     type : ReviewErrorType
     
@@ -21,21 +21,21 @@ class ReviewExeptionModel(BaseHTTPExeptionModel):
 
 
 
-class ReviewExeption(BaseHTTPExeption):
+class ReviewException(BaseHTTPException):
     pass
 
 
 
 
-ReviewNotFoundError = ReviewExeption(status_code = status.HTTP_400_BAD_REQUEST,
-                                         ditail = ReviewExeptionModel(
+ReviewNotFoundError = ReviewException(status_code = status.HTTP_400_BAD_REQUEST,
+                                         ditail = ReviewExceptionModel(
                                                                     type = ReviewErrorType.REVIEW_NOT_FOUND,
                                                                     message = 'the score was not found'
                                                                 )
                                         )
 
-MovieNotFoundError = ReviewExeption(status_code = status.HTTP_400_BAD_REQUEST,
-                                         ditail = ReviewExeptionModel(
+MovieNotFoundError = ReviewException(status_code = status.HTTP_400_BAD_REQUEST,
+                                         ditail = ReviewExceptionModel(
                                                                     type = ReviewErrorType.MOVIE_NOT_FOUND,
                                                                     message = 'no movie with this id'
                                                                 )

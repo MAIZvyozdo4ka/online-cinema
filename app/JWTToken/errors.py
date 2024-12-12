@@ -1,4 +1,4 @@
-from app.BaseHTTPExeption import BaseHTTPExeption, BaseHTTPExeptionModel
+from app.BaseHTTPException import BaseHTTPException, BaseHTTPExceptionModel
 from pydantic import Field, ConfigDict
 from enum import StrEnum, auto
 from fastapi import status
@@ -18,7 +18,7 @@ class AccessErrorType(StrEnum):
 
     
     
-class JWTExeptionModel(BaseHTTPExeptionModel):
+class JWTExceptionModel(BaseHTTPExceptionModel):
     
     type : AccessErrorType
     
@@ -26,13 +26,13 @@ class JWTExeptionModel(BaseHTTPExeptionModel):
 
 
 
-class JWTExeption(BaseHTTPExeption):
+class JWTException(BaseHTTPException):
     pass
 
 
 
-IsNotSpecifiedError = JWTExeption(status_code = status.HTTP_302_FOUND,
-                                  ditail = JWTExeptionModel(
+IsNotSpecifiedError = JWTException(status_code = status.HTTP_302_FOUND,
+                                  ditail = JWTExceptionModel(
                                                             type = AccessErrorType.TOKEN_IS_NOT_SPECIFIED,
                                                             message = 'Access-token header is not set'
                                                         ),
@@ -41,38 +41,38 @@ IsNotSpecifiedError = JWTExeption(status_code = status.HTTP_302_FOUND,
                                     }
                                   )
 
-IncorrectAuthHeaderFromError = JWTExeption(status_code = status.HTTP_401_UNAUTHORIZED,
-                                         ditail = JWTExeptionModel(
+IncorrectAuthHeaderFromError = JWTException(status_code = status.HTTP_401_UNAUTHORIZED,
+                                         ditail = JWTExceptionModel(
                                                             type = AccessErrorType.INCORRECT_AUTH_HEADER_FORM,
                                                             message = 'Access-token must have the form "Bearer <TOKEN>"'
                                                         )
                                          )
 
 
-IncorrectTokenTypeError = JWTExeption(status_code = status.HTTP_401_UNAUTHORIZED,
-                                         ditail = JWTExeptionModel(
+IncorrectTokenTypeError = JWTException(status_code = status.HTTP_401_UNAUTHORIZED,
+                                         ditail = JWTExceptionModel(
                                                                     type = AccessErrorType.INCORRECT_TOKEN_TYPE,
                                                                     message = 'The passed token does not match the required type'
                                                                 )
                                          )
 
-ClientInvalidTokenError = JWTExeption(status_code = status.HTTP_401_UNAUTHORIZED,
-                                         ditail = JWTExeptionModel(
+ClientInvalidTokenError = JWTException(status_code = status.HTTP_401_UNAUTHORIZED,
+                                         ditail = JWTExceptionModel(
                                                                     type = AccessErrorType.INVALID_TOKEN,
                                                                     message = 'The transferred token is invalid'
                                                                 )
                                          )
 
 
-ExpiredTokenError = JWTExeption(status_code = status.HTTP_401_UNAUTHORIZED,
-                                         ditail = JWTExeptionModel(
+ExpiredTokenError = JWTException(status_code = status.HTTP_401_UNAUTHORIZED,
+                                         ditail = JWTExceptionModel(
                                                                     type = AccessErrorType.TOKEN_HAS_EXPIRED,
                                                                     message = 'The token lifetime has expired'
                                                                 )
                                          )
 
-TokenRevokedError = JWTExeption(status_code = status.HTTP_401_UNAUTHORIZED,
-                                         ditail = JWTExeptionModel(
+TokenRevokedError = JWTException(status_code = status.HTTP_401_UNAUTHORIZED,
+                                         ditail = JWTExceptionModel(
                                                                     type = AccessErrorType.TOKEN_REVOKED,
                                                                     message = 'This token has revoked'
                                                                 )

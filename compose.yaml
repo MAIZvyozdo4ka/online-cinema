@@ -2,6 +2,29 @@
 
 
 services:
+  s3:
+    image: scality/s3server
+    ports:
+      - 4000:8000
+    volumes:
+      - ./core/env/s3_clients.json:/usr/src/app/conf/authdata.json
+      - ./core/env/s3_config.json:/usr/src/app/config.json
+    networks:
+      - app-network
+  
+  s3-init:
+    build: 
+      context: .
+      dockerfile: s3.Dockerfile
+    command: "python3 s3-init/s3_init.py"
+    volumes:
+      - ./s3-init:/code/s3-init
+      - ./core:/code/s3-init/core
+    depends_on:
+      - s3
+    networks:
+      - app-network
+
   postgres:
     image: postgres:13-alpine
     restart: always
@@ -11,20 +34,25 @@ services:
       ./postgres.env
     networks:
       - app-network
-    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost -p 5432"]
+      interval: 10s
+      retries: 5
+      start_period: 1s
+      timeout: 5s
   migrations:
-    build: 
+    build:
       context: .
       dockerfile: migrations.Dockerfile
-    command: "alembic upgrade head"
+    command: ["sh", "-c", "until pg_isready -U postgres -h postgres -p 5432; do echo Waiting for DB; sleep 2; done; alembic upgrade head"]
     volumes:
       - ./migration:/code/migration
       - ./core:/code/core
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
-  
   auth-service:
     build: ./auth-service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
@@ -95,6 +123,34 @@ services:
     networks:
       - app-network
 
+  admin-service:
+    build: ./admin-service
+    command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - 8006:8000
+    volumes:
+      - ./admin-service/app:/code/app
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
+  moderator-service:
+    build: ./moderator-service
+    command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
+    ports:
+      - 8007:8000
+    volumes:
+      - ./moderator-service/app:/code/app
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
   nginx-reverse-proxy:
     image: nginx:latest
     ports:
@@ -107,6 +163,7 @@ services:
       - movie-service
       - review-service
       - user-service
+      - admin-service
     networks:
       - app-network
 

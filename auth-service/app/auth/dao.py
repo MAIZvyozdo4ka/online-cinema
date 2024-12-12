@@ -3,11 +3,11 @@ from core.models.postgres import UserDB
 from core.dependencies.JWTToken import TokenValidation, JWTTokenDAO, IssuedJWTTokensOut
 from sqlalchemy import select, or_, insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.dao import BaseDAO
+from core.dao import PostgresDAO
 from .errors import (
                     UsernameOccupiedError,
                     EmailOccupiedError,
-                    AuthExeption,
+                    AuthException,
                     InvalidPasswordError,
                     InvalidUsernameOrEmailError
                 )
@@ -17,7 +17,7 @@ from core.schemas import NonPrivateUserInfoOut
 
 
 
-class AuthDAO(BaseDAO):
+class AuthDAO(PostgresDAO):
     
     @classmethod
     async def get_user_by_email_or_username(cls,
@@ -40,7 +40,7 @@ class AuthDAO(BaseDAO):
     async def get_user_with_same_credentials(cls,
                                                session : AsyncSession,
                                                user_credentials : UserRegistrationCredentialsIn
-                                            ) -> AuthExeption | None:
+                                            ) -> AuthException | None:
         
         user_with_same_credentials = await cls.get_user_by_email_or_username(session, user_credentials.username, user_credentials.email)
 
@@ -58,7 +58,7 @@ class AuthDAO(BaseDAO):
     async def get_user_with_logining_credentials(cls, 
                                                   session : AsyncSession,
                                                   user_credentials : UserLoginCredentialsIn,
-                                                ) -> tuple[UserDB | None, AuthExeption | None]:
+                                                ) -> tuple[UserDB | None, AuthException | None]:
                     
         user = await cls.get_user_by_email_or_username(session, user_credentials.username_or_email, user_credentials.username_or_email)
         
@@ -73,7 +73,7 @@ class AuthDAO(BaseDAO):
     
     
     @classmethod
-    @BaseDAO.get_session(auto_commit = True)
+    @PostgresDAO.get_session(auto_commit = True)
     async def registrate(cls,
                          session : AsyncSession, 
                          user_credentials : UserRegistrationCredentialsIn
@@ -98,7 +98,7 @@ class AuthDAO(BaseDAO):
     
     
     @classmethod
-    @BaseDAO.get_session(auto_commit = True)
+    @PostgresDAO.get_session(auto_commit = True)
     async def login(cls,
                     session : AsyncSession,
                     user_credentials : UserLoginCredentialsIn
@@ -114,7 +114,7 @@ class AuthDAO(BaseDAO):
             
     
     @classmethod
-    @BaseDAO.get_session(auto_commit = True, ignore_http_errors = True)
+    @PostgresDAO.get_session(auto_commit = True, ignore_http_errors = True)
     async def update_tokens(cls,
                             session : AsyncSession,
                             refresh_token : RefreshTokenIn

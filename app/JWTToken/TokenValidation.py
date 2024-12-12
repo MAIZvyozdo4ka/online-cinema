@@ -83,7 +83,7 @@ class TokenValidation:
     ) -> str | None:
         try:
             return await cls.check_access_token(request = request, authorization_header = authorization_header)
-        except JWTExeption as error:
+        except JWTException as error:
             request.state.error = error
             request.state.user = None
             

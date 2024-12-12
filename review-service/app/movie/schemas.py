@@ -1,13 +1,7 @@
 from pydantic import Field, ConfigDict
 from core.schemas import UserActionMovie, BaseModel, NonPrivateUserInfoOut
-from ..schemas import ReviewMovie
+from core.schemas import ReviewMovieWithUserInfoOut, ReviewMovie
 
-    
- 
-class ReviewMovieWithUserInfoOut(UserActionMovie, ReviewMovie):
-    user : NonPrivateUserInfoOut
-    
-    model_config = ConfigDict(title = 'Рецензии фильма')
     
     
 
