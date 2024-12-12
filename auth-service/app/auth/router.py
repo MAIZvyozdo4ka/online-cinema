@@ -12,29 +12,14 @@ router = APIRouter(tags = ['Аунтификация'],
                 )
 
 
-
-@router.get(path = '/registration', summary = 'HTML страничка с формой регистрации')
-async def show_registration_html() -> str:
-    return 'this is reg html'
-
-
-
 @router.post(path = '/registration', summary = 'Регистация пользователя')
 async def registrate(user_credentials : UserRegistrationCredentialsIn) -> IssuedJWTTokensOut:
     return await AuthDAO.registrate(user_credentials)
 
 
-
-@router.get(path = '/login', summary = 'HTML страничка с формой логина')
-async def show_login_html() -> str:
-    return 'this is login html'
-
-
-
 @router.post(path = '/login', summary = 'Вход в аккаунт')
 async def login(user_credentials : UserLoginCredentialsIn) -> IssuedJWTTokensOut:
     return await AuthDAO.login(user_credentials)
-
 
 
 @router.post(path = '/update-tokens', summary = 'Обновление токенов', responses = JWTExeption.get_responses_schemas())

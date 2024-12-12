@@ -13,6 +13,14 @@ app = FastAPI(
     }
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Разрешаем запросы с фронтенда
+    allow_credentials=True,
+    allow_methods=["*"],  # Разрешаем все методы (GET, POST и т.д.)
+    allow_headers=["*"],  # Разрешаем все заголовки
+)
+
 app.include_router(movie_router)
 app.include_router(auth_router)
 app.include_router(user_router)
@@ -20,11 +28,3 @@ app.include_router(user_router)
 
 
 #print(BaseHTTPExeption._all_responses_schemas)
-"""
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Разрешаем запросы с фронтенда
-    allow_credentials=True,
-    allow_methods=["*"],  # Разрешаем все методы (GET, POST и т.д.)
-    allow_headers=["*"],  # Разрешаем все заголовки
-)"""
