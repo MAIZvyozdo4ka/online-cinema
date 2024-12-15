@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ErrorMessage from './ErrorMessage';
 
 function LoginPage() {
     const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -29,8 +30,8 @@ function LoginPage() {
                 const errorData = await response.json();
 
                 // Если 400 Bad Request с `type` и `message`
-                if (response.status === 400) {
-                    throw new Error(`Error: ${errorData.ditail.message}`);
+                if (response.status === 400 && errorData.ditail) {
+                    throw new Error(`${errorData.ditail.type}: ${errorData.ditail.message}`);
                 }
 
                 // Если 422 Validation Error
@@ -59,7 +60,10 @@ function LoginPage() {
             console.log('Login Response:', data);
             navigate('/account');
         } catch (err) {
-            setError(err.message);
+            setError({
+                type: 'LoginError',
+                message: err.message,
+            });
             setSuccess(null);
         }
     };
@@ -67,6 +71,8 @@ function LoginPage() {
     return (
         <div style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
             <h1>Login</h1>
+            {error && <ErrorMessage type={error.type} message={error.message} />}
+            {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '10px' }}>
                     <input
@@ -111,8 +117,6 @@ function LoginPage() {
                     Login
                 </button>
             </form>
-            {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-            {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
         </div>
     );
 }

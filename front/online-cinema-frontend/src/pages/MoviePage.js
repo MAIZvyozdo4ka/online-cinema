@@ -281,6 +281,19 @@ function MoviePage() {
                 <strong>Количество отзывов:</strong> {movie.review_count}
             </p>
 
+            {/* Video Player */}
+            <div style={{ marginTop: '20px' }}>
+                <h3>Просмотр фильма</h3>
+                <video
+                    width="600"
+                    controls
+                    src={`${API_BASE_URL}/movie/${movieId}/play`}
+                    style={{ marginTop: '20px' }}
+                >
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
+
             {/* Ratings Distribution Chart */}
             <div style={{ marginTop: '50px' }}>
                 <h3>Распределение оценок</h3>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 function HomePage() {
@@ -7,6 +8,7 @@ function HomePage() {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+    const navigate = useNavigate();
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -43,6 +45,18 @@ function HomePage() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleWatchNow = (movie) => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        // Извлекаем movieId из local_link:
+        const movieId = parseInt(movie.local_link.replace('/api/v1/movie/', ''), 10);
+        navigate(`/movie/${movieId}`);
+        
     };
 
     return (
@@ -85,17 +99,30 @@ function HomePage() {
             <section className="movie-results" style={{ marginTop: '20px' }}>
                 {movies.length > 0 ? (
                     <div className="movie-list">
-                        {movies.map((movie, index) => (
-                            <div key={index} className="movie-item" style={{ marginBottom: '20px' }}>
-                                <h2>{movie.title}</h2>
-                                <p><strong>Genres:</strong> {movie.genres.join(', ')}</p>
-                                <p><strong>Rating:</strong> {movie.rating} ({movie.rating_count} ratings)</p>
-                                <p><strong>Reviews:</strong> {movie.review_count} reviews</p>
-                                <a href={movie.local_link} style={{ color: '#007bff', textDecoration: 'underline' }}>
-                                    Watch Now
-                                </a>
-                            </div>
-                        ))}
+                        {movies.map((movie, index) => {
+                            const movieId = movie.local_link.replace('/api/v1/movie/', '');
+                            return (
+                                <div key={index} className="movie-item" style={{ marginBottom: '20px' }}>
+                                    <h2>{movie.title}</h2>
+                                    <p><strong>Genres:</strong> {movie.genres.join(', ')}</p>
+                                    <p><strong>Rating:</strong> {movie.rating} ({movie.rating_count} ratings)</p>
+                                    <p><strong>Reviews:</strong> {movie.review_count} reviews</p>
+                                    <button
+                                        onClick={() => handleWatchNow(movie)}
+                                        style={{
+                                            color: '#007bff',
+                                            textDecoration: 'underline',
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            fontSize: '16px'
+                                        }}
+                                    >
+                                        Watch Now
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
                 ) : (
                     !isLoading && !error && (

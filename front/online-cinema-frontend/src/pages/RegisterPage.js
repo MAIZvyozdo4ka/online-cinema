@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ErrorMessage from './ErrorMessage';
 
 function RegisterPage() {
     const [username, setUsername] = useState('');
@@ -31,12 +32,12 @@ function RegisterPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-            
+
                 // Обработка ошибки 400 (Bad Request)
                 if (response.status === 400) {
                     throw new Error(`Error: ${errorData.ditail.message}`);
                 }
-            
+
                 // Обработка ошибки 422 (Validation Error)
                 if (response.status === 422) {
                     if (Array.isArray(errorData.detail)) {
@@ -47,11 +48,10 @@ function RegisterPage() {
                     }
                     throw new Error('Validation error occurred, but no details were provided.');
                 }
-            
+
                 // Обработка других ошибок
                 throw new Error('Something went wrong. Please try again later.');
             }
-            
 
             const data = await response.json();
             setSuccess('Registration successful!');
@@ -59,7 +59,7 @@ function RegisterPage() {
 
             console.log('Response:', data);
         } catch (err) {
-            setError(err.message); 
+            setError(err.message);
             setSuccess(null);
         }
     };
@@ -67,6 +67,8 @@ function RegisterPage() {
     return (
         <div style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
             <h1>Register</h1>
+            {error && <ErrorMessage type="ValidationError" message={error} />}
+            {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
             <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '10px' }}>
                     <input
@@ -153,8 +155,6 @@ function RegisterPage() {
                     Register
                 </button>
             </form>
-            {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-            {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
         </div>
     );
 }
