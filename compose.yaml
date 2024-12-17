@@ -1,24 +1,23 @@
-
-
-
 services:
   s3:
-    image: scality/s3server
+    build: 
+      context: .
+      dockerfile: scripts/s3.Dockerfile
     ports:
       - 4000:8000
-    volumes:
-      - ./core/env/s3_clients.json:/usr/src/app/conf/authdata.json
-      - ./core/env/s3_config.json:/usr/src/app/config.json
     networks:
       - app-network
-  
+    # entrypoint: ["/usr/src/app/docker-entrypoint.sh"]
+    # volumes:
+    #   - ./core:/code/core
+
   s3-init:
     build: 
       context: .
-      dockerfile: s3.Dockerfile
+      dockerfile: scripts/s3-init.Dockerfile
     command: "python3 s3-init/s3_init.py"
     volumes:
-      - ./s3-init:/code/s3-init
+      # - ./s3-init:/code/s3-init
       - ./core:/code/s3-init/core
     depends_on:
       - s3
@@ -43,10 +42,8 @@ services:
   migrations:
     build:
       context: .
-      dockerfile: migrations.Dockerfile
-    command: ["sh", "-c", "until pg_isready -U postgres -h postgres -p 5432; do echo Waiting for DB; sleep 2; done; alembic upgrade head"]
+      dockerfile: scripts/migrations.Dockerfile
     volumes:
-      - ./migration:/code/migration
       - ./core:/code/core
     depends_on:
       postgres:

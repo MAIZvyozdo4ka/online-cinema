@@ -2,17 +2,12 @@
 
 ZIP_FILES=(
     "data/postgres_data.zip"
-    "data/s3_env.zip"
 )
 
 DEST_DIRS=(
     "migration/versions/csv_data"
-    "s3-init/core"
 )
 
-mkdir s3-init/movie_mp4
-touch s3-init/movie_mp4/movie.csv
-# Перебор архивов и директорий
 for i in "${!ZIP_FILES[@]}"; do
     ZIP_FILE="${ZIP_FILES[i]}"
     DEST_DIR="${DEST_DIRS[i]}"
