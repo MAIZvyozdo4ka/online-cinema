@@ -11,4 +11,4 @@ RUN pip install --upgrade pip && pip install --no-cache-dir --upgrade -r /code/r
 
 COPY scripts/create_movie_csv.sh /app/create_movie_csv.sh
 RUN chmod 777 /app/create_movie_csv.sh
-CMD /bin/bash -c "/app/create_movie_csv.sh
+CMD /bin/bash -c "/app/create_movie_csv.sh"

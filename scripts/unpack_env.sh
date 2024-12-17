@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# ./core/env/s3_clients.json:/usr/src/app/conf/authdata.json
-#       - ./core/env/s3_config.json:/usr/src/app/config.json
-
 ZIP_FILES=(
     "data/s3_env.zip"
 )
