@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './pages/Header';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -16,6 +17,7 @@ import AdminRolesPage from './pages/AdminRolesPage'; // Новая страни�
 function App() {
     return (
         <Router>
+            <Header />
             <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/register" element={<RegisterPage />} />

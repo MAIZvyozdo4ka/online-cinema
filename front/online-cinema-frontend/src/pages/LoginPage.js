@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import ErrorMessage from './ErrorMessage';
 
 function LoginPage() {
@@ -29,7 +29,7 @@ function LoginPage() {
             if (!response.ok) {
                 const errorData = await response.json();
 
-                // Если 400 Bad Request с `type` и `message`
+                // Если 400 Bad Request
                 if (response.status === 400 && errorData.ditail) {
                     throw new Error(`${errorData.ditail.type}: ${errorData.ditail.message}`);
                 }
@@ -69,56 +69,86 @@ function LoginPage() {
     };
 
     return (
-        <div style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
-            <h1>Login</h1>
+        <div style={{ maxWidth: '500px', margin: '50px auto', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
+            {/* Заголовок */}
+            <h1 style={{ marginBottom: '20px', color: '#333' }}>Вход</h1>
+
+            {/* Сообщения об ошибке или успехе */}
             {error && <ErrorMessage type={error.type} message={error.message} />}
             {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '10px' }}>
+
+            {/* Форма логина */}
+            <form
+                onSubmit={handleSubmit}
+                style={{
+                    backgroundColor: '#f9f9f9',
+                    padding: '20px',
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                }}
+            >
+                <div style={{ marginBottom: '15px' }}>
                     <input
                         type="text"
-                        placeholder="Username or Email"
+                        placeholder="Имя пользователя или Email"
                         value={usernameOrEmail}
                         onChange={(e) => setUsernameOrEmail(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                        }}
+                        style={inputStyle}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                <div style={{ marginBottom: '15px' }}>
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder="Пароль"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                        }}
+                        style={inputStyle}
                         required
                     />
                 </div>
-                <button
-                    type="submit"
-                    style={{
-                        width: '100%',
-                        padding: '10px',
-                        fontSize: '16px',
-                        backgroundColor: '#28a745',
-                        color: '#fff',
-                        border: 'none',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Login
+                <button type="submit" style={buttonStyle}>
+                    Войти
                 </button>
             </form>
+
+            {/* Кнопка для перехода на страницу регистрации */}
+            <div style={{ marginTop: '20px' }}>
+                <p>Ещё нет аккаунта?</p>
+                <Link to="/register" style={linkStyle}>
+                    Перейти на страницу регистрации
+                </Link>
+            </div>
         </div>
     );
 }
+
+const inputStyle = {
+    width: '100%',
+    padding: '10px',
+    fontSize: '16px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    boxSizing: 'border-box',
+};
+
+const buttonStyle = {
+    width: '100%',
+    padding: '12px',
+    fontSize: '16px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+};
+
+const linkStyle = {
+    color: '#007bff',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+    transition: 'color 0.3s',
+};
 
 export default LoginPage;

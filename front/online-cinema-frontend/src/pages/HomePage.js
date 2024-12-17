@@ -56,41 +56,65 @@ function HomePage() {
         // Извлекаем movieId из local_link:
         const movieId = parseInt(movie.local_link.replace('/api/v1/movie/', ''), 10);
         navigate(`/movie/${movieId}`);
-        
+    };
+
+    const handleProfileNavigation = () => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            navigate('/account');
+        } else {
+            navigate('/login');
+        }
     };
 
     return (
         <div className="homepage">
             <header className="homepage-header">
                 <h1>Search for Movies</h1>
-                <form onSubmit={handleSearch}>
-                    <input
-                        type="text"
-                        placeholder="Enter movie title..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        style={{
-                            width: '60%',
-                            padding: '10px',
-                            fontSize: '16px',
-                            marginRight: '10px',
-                        }}
-                        required
-                    />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <form onSubmit={handleSearch} style={{ flex: 1 }}>
+                        <input
+                            type="text"
+                            placeholder="Enter movie title..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{
+                                width: '60%',
+                                padding: '10px',
+                                fontSize: '16px',
+                                marginRight: '10px',
+                            }}
+                            required
+                        />
+                        <button
+                            type="submit"
+                            style={{
+                                padding: '10px 20px',
+                                fontSize: '16px',
+                                backgroundColor: '#007bff',
+                                color: '#fff',
+                                border: 'none',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Search
+                        </button>
+                    </form>
                     <button
-                        type="submit"
+                        onClick={handleProfileNavigation}
                         style={{
+                            marginLeft: '10px',
                             padding: '10px 20px',
                             fontSize: '16px',
-                            backgroundColor: '#007bff',
+                            backgroundColor: '#28a745',
                             color: '#fff',
                             border: 'none',
                             cursor: 'pointer',
                         }}
                     >
-                        Search
+                        {localStorage.getItem('accessToken') ? 'Profile' : 'Login'}
                     </button>
-                </form>
+                </div>
             </header>
 
             {isLoading && <p style={{ textAlign: 'center', color: '#007bff' }}>Loading...</p>}

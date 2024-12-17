@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ErrorMessage from './ErrorMessage';
+import { Link } from 'react-router-dom';
 
 function RegisterPage() {
     const [username, setUsername] = useState('');
@@ -43,7 +44,7 @@ function RegisterPage() {
                     if (Array.isArray(errorData.detail)) {
                         const validationErrors = errorData.detail
                             .map((err) => err.msg)
-                            .join(', '); // Объединяем все сообщения через запятую
+                            .join(', ');
                         throw new Error(`Validation Error: ${validationErrors}`);
                     }
                     throw new Error('Validation error occurred, but no details were provided.');
@@ -65,98 +66,107 @@ function RegisterPage() {
     };
 
     return (
-        <div style={{ maxWidth: '400px', margin: '50px auto', textAlign: 'center' }}>
-            <h1>Register</h1>
+        <div style={{ maxWidth: '500px', margin: '50px auto', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
+            <h1 style={{ marginBottom: '20px', color: '#333' }}>Регистрация</h1>
+
+            {/* Сообщения об ошибках и успехе */}
             {error && <ErrorMessage type="ValidationError" message={error} />}
             {success && <p style={{ color: 'green', marginTop: '10px' }}>{success}</p>}
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '10px' }}>
+
+            {/* Форма регистрации */}
+            <form onSubmit={handleSubmit} style={{ backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+                <div style={{ marginBottom: '15px' }}>
                     <input
                         type="text"
-                        placeholder="Username"
+                        placeholder="Имя пользователя"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                        }}
+                        style={inputStyle}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                <div style={{ marginBottom: '15px' }}>
                     <input
                         type="text"
-                        placeholder="First Name"
+                        placeholder="Имя"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                        }}
+                        style={inputStyle}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                <div style={{ marginBottom: '15px' }}>
                     <input
                         type="text"
-                        placeholder="Last Name"
+                        placeholder="Фамилия"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                        }}
+                        style={inputStyle}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                <div style={{ marginBottom: '15px' }}>
                     <input
                         type="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                        }}
+                        style={inputStyle}
                         required
                     />
                 </div>
-                <div style={{ marginBottom: '10px' }}>
+                <div style={{ marginBottom: '15px' }}>
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder="Пароль"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            fontSize: '16px',
-                        }}
+                        style={inputStyle}
                         required
                     />
                 </div>
-                <button
-                    type="submit"
-                    style={{
-                        width: '100%',
-                        padding: '10px',
-                        fontSize: '16px',
-                        backgroundColor: '#28a745',
-                        color: '#fff',
-                        border: 'none',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Register
+                <button type="submit" style={buttonStyle}>
+                    Зарегистрироваться
                 </button>
             </form>
+
+            {/* Кнопка для перехода на страницу логина */}
+            <div style={{ marginTop: '20px' }}>
+                <p>Уже есть аккаунт?</p>
+                <Link to="/login" style={linkStyle}>
+                    Перейти на страницу входа
+                </Link>
+            </div>
         </div>
     );
 }
+
+const inputStyle = {
+    width: '100%',
+    padding: '10px',
+    fontSize: '16px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    boxSizing: 'border-box',
+};
+
+const buttonStyle = {
+    width: '100%',
+    padding: '12px',
+    fontSize: '16px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+};
+
+const linkStyle = {
+    color: '#007bff',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+    transition: 'color 0.3s',
+};
 
 export default RegisterPage;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -10,7 +10,6 @@ function MoviePage() {
     const [error, setError] = useState(null);
     const [reviewError, setReviewError] = useState(null);
     const [successMessage, setSuccessMessage] = useState(null);
-    const [ratingMessage, setRatingMessage] = useState(null);
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
     const [header, setHeader] = useState('');
@@ -20,13 +19,9 @@ function MoviePage() {
     // New state variables
     const [ratingsDistribution, setRatingsDistribution] = useState([]);
     const [myRating, setMyRating] = useState(null);
-    const [reviewsData, setReviewsData] = useState({
-        reviews: [],
-        reviews_count: 0,
-        positive_statement_percent: 0,
-        negative_statement_percent: 0,
-        neutral_statement_percent: 0,
-    });
+    const [selectedRating, setSelectedRating] = useState(null);
+    const [reviewsData, setReviewsData] = useState(null);
+    const [reviews, setReviews] = useState([]);
     const [myReview, setMyReview] = useState(null);
 
     // Validation states
@@ -62,7 +57,7 @@ function MoviePage() {
     }, [movieId, API_BASE_URL]);
 
     // Fetch user's own review
-    const fetchMyReview = async () => {
+    const fetchMyReview = useCallback(async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/review/movie/${movieId}/my`, {
                 method: 'GET',
@@ -71,65 +66,51 @@ function MoviePage() {
                     'Content-Type': 'application/json',
                 },
             });
-
+    
             if (response.status === 401) {
                 setMyReview(null);
                 return;
             }
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to fetch your review');
             }
-
+    
             const data = await response.json();
             setMyReview(data);
         } catch (err) {
             console.error(err.message);
-            setMyReview(null); // Ensure it's set to null on error
+            setMyReview(null);
         }
-    };
+    }, [API_BASE_URL, movieId]);
+    
 
     useEffect(() => {
         fetchMyReview();
-    }, [movieId, API_BASE_URL]);
+    }, [fetchMyReview]);
 
     // Fetch reviews
-    const fetchReviews = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/review/movie/${movieId}?limit=10`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch reviews');
-            }
-
-            const data = await response.json();
-            setReviewsData({
-                reviews: Array.isArray(data.reviews) ? data.reviews : [],
-                reviews_count: data.reviews_count || 0,
-                positive_statement_percent: data.positive_statement_percent || 0,
-                negative_statement_percent: data.negative_statement_percent || 0,
-                neutral_statement_percent: data.neutral_statement_percent || 0,
-            });
-        } catch (err) {
-            console.error(err.message);
-            setReviewsData({
-                reviews: [],
-                reviews_count: 0,
-                positive_statement_percent: 0,
-                negative_statement_percent: 0,
-                neutral_statement_percent: 0,
-            });
-        }
-    };
-
     useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/review/movie/${movieId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch reviews');
+                }
+
+                const data = await response.json();
+                console.log("Полученные отзывы:", data);
+
+                setReviewsData(data);
+                setReviews(data.reviews || []);
+            } catch (err) {
+                console.error("Ошибка при получении отзывов:", err.message);
+                setReviewsData(null);
+                setReviews([]);
+            }
+        };
+
         fetchReviews();
     }, [movieId, API_BASE_URL]);
 
@@ -171,27 +152,60 @@ function MoviePage() {
                         'Content-Type': 'application/json',
                     },
                 });
-
+    
+                // Обработка случая неавторизованного пользователя
                 if (response.status === 401) {
+                    console.warn("User not authorized. Setting rating to null.");
                     setMyRating(null);
                     return;
                 }
-
+    
+                // Проверка других ошибок
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Failed to fetch your rating');
                 }
-
+    
                 const data = await response.json();
-                setMyRating(data.rating);
+    
+                // Проверка, что данные не null или undefined
+                setMyRating(data?.rating ?? null);
             } catch (err) {
-                console.error(err.message);
-                setMyRating(null); // Ensure it's set to null on error
+                console.error("Error fetching rating:", err.message);
+                setMyRating(null);
             }
         };
-
+    
         fetchMyRating();
     }, [movieId, API_BASE_URL]);
+
+    const handleRatingSubmit = async (rating) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/rating/rate-movie`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    movie_id: Number(movieId),
+                    rating,
+                }),
+            });
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to submit rating');
+            }
+    
+            setSelectedRating(rating); // Обновляем выбранную оценку
+            setMyRating(rating); // Обновляем отображаемую оценку
+            console.log(`Оценка ${rating} успешно отправлена!`);
+        } catch (err) {
+            console.error('Ошибка при отправке оценки:', err.message);
+        }
+    };    
+    
 
     // Validate header
     useEffect(() => {
@@ -247,7 +261,6 @@ function MoviePage() {
 
             // Refresh data
             fetchMyReview();
-            fetchReviews();
         } catch (err) {
             setReviewError(err.message);
             setSuccessMessage(null);
@@ -318,7 +331,32 @@ function MoviePage() {
                 ) : (
                     <p>Вы ещё не оценили этот фильм.</p>
                 )}
+                <div style={{ marginTop: '10px' }}>
+                    <p>Поставьте оценку фильму (1-10):</p>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '5px' }}>
+                        {[...Array(10)].map((_, index) => {
+                            const ratingValue = index + 1;
+                            return (
+                                <button
+                                    key={ratingValue}
+                                    onClick={() => handleRatingSubmit(ratingValue)}
+                                    style={{
+                                        padding: '10px',
+                                        backgroundColor: ratingValue === selectedRating ? '#28a745' : '#ddd',
+                                        color: ratingValue === selectedRating ? '#fff' : '#000',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        borderRadius: '5px',
+                                    }}
+                                >
+                                    {ratingValue}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
+
 
             {/* User's Own Review */}
             <div style={{ marginTop: '50px' }}>
@@ -422,25 +460,46 @@ function MoviePage() {
             </div>
 
             {/* Users' Reviews */}
-            <div style={{ marginTop: '50px' }}>
-                <h3>Отзывы пользователей</h3>
-                <p>Всего отзывов: {reviewsData.reviews_count}</p>
-                <p>Положительных: {reviewsData.positive_statement_percent}%</p>
-                <p>Отрицательных: {reviewsData.negative_statement_percent}%</p>
-                <p>Нейтральных: {reviewsData.neutral_statement_percent}%</p>
+            <div style={{ marginTop: '50px', textAlign: 'center' }}>
+                <h2>Отзывы</h2>
+
+                {/* Статистика отзывов */}
+                {reviewsData && (
+                    <div>
+                        <p>Всего отзывов: {reviewsData.reviews_count}</p>
+                        <p>Положительных: {reviewsData.positive_statement_percent}%</p>
+                        <p>Нейтральных: {reviewsData.neutral_statement_percent}%</p>
+                        <p>Негативных: {reviewsData.negative_statement_percent}%</p>
+                    </div>
+                )}
+
+                {/* Список отзывов */}
                 {reviewsData.reviews.length > 0 ? (
-                    reviewsData.reviews.map((reviewItem, index) => (
-                        <div key={index} style={{ textAlign: 'left', border: '1px solid #ccc', padding: '10px', marginBottom: '20px' }}>
-                            <h4>{reviewItem.header}</h4>
-                            <p>{reviewItem.review}</p>
-                            <p><strong>Оценка:</strong> {reviewItem.statement}</p>
-                            <p><strong>Пользователь:</strong> {reviewItem.user.username}</p>
-                        </div>
-                    ))
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                        {reviews.map((review, index) => (
+                            <li
+                                key={index}
+                                style={{
+                                    marginBottom: '20px',
+                                    borderBottom: '1px solid #ccc',
+                                    paddingBottom: '10px',
+                                    textAlign: 'left',
+                                }}
+                            >
+                                <h3>{review.header}</h3>
+                                <p>{review.review}</p>
+                                <p><strong>Тональность:</strong> {review.statement}</p>
+                                <p><strong>Автор:</strong> {review.user.username}</p>
+                                <p><strong>Последнее изменение:</strong> {review.last_modified}</p>
+                            </li>
+                        ))}
+                    </ul>
                 ) : (
-                    <p>Нет отзывов для отображения.</p>
+                    <p>Отзывов пока нет.</p>
                 )}
             </div>
+
+
         </div>
     );
 }
