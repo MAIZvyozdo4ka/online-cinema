@@ -1,5 +1,6 @@
 from .schemas import UserRegistrationCredentialsIn, UserLoginCredentialsIn, RefreshTokenIn
 from core.models.postgres import UserDB
+from core.models.postgres.Recommendation import RecommedationDB
 from core.dependencies.JWTToken import TokenValidation, JWTTokenDAO, IssuedJWTTokensOut
 from sqlalchemy import select, or_, insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -78,7 +79,6 @@ class AuthDAO(PostgresDAO):
                          session : AsyncSession, 
                          user_credentials : UserRegistrationCredentialsIn
                         ) -> IssuedJWTTokensOut:
-        
         query_for_new_user = insert(UserDB).values(user_credentials.model_dump()).returning(UserDB.id)
         
         error = await cls.get_user_with_same_credentials(session, user_credentials)
@@ -87,7 +87,10 @@ class AuthDAO(PostgresDAO):
             raise error
         
         user_id = await session.scalar(query_for_new_user)
-        
+
+        query = insert(RecommedationDB).values(userId=user_id).returning(RecommedationDB.userId)
+        await session.scalar(query)
+
         return JWTTokenDAO.generate_and_save_new_tokens_by_user_id(session, 
                                                                         NonPrivateUserInfoOut(
                                                                                 username = user_credentials.username,

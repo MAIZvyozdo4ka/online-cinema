@@ -25,6 +25,20 @@ services:
     networks:
       - app-network
 
+  rec-update:
+    build:
+      context: .
+      dockerfile: rec.Dockerfile
+    command: "python3 -m recommendation-updating.main"
+    volumes:
+      - ./recommendation-updating:/code/recommendation-updating
+      - ./core:/code/core
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
+
   postgres:
     image: postgres:13-alpine
     restart: always

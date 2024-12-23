@@ -9,3 +9,7 @@ sqlalchemy-utils
 pyjwt
 alembic_utils
 aioboto3
+kagglehub
+pandas
+numpy
+scikit-learn
