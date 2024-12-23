@@ -75,6 +75,20 @@ class TableInit:
                 where.append(table.c.__dict__[if_column] == item.pop(if_column))
             query_for_update = table.update().where(*where).values(item)
             op.execute(query_for_update)
+
+
+    @classmethod
+    def get_list_movies_from_file(cls,
+                              file_name: str
+                              ) -> list[int]:
+        items : list[int]
+        items = []
+        with open(file=file_name, mode='r') as file:
+            for item in file:
+                items += item.split(',')
+        for i in range(len(items)):
+            items[i] = int(items[i])
+        return items
                 
 
 

@@ -13,4 +13,3 @@ class JWTTokenSettings(BaseConfig):
 
 
 jwtsettings = JWTTokenSettings()
-
