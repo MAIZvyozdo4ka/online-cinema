@@ -77,7 +77,7 @@ async def main():
     users_id = await RecDAO.get_users_id()
     df_users = await RecDAO.get_users()
     df_dataset = pd.read_csv("recommendation-updating/new_clear_rating_with_title.csv")
-    df_movies = pd.read_csv("recommendation-updating/movie.csv")
+    df_movies = pd.read_csv("recommendation-updating/movie_with_titles.csv")
     for id in users_id:
         rec = RecDAO().recommendation(id[0], df_movies, df_dataset, df_users.copy())
         await RecDAO.update(user_id=id[0], recommendation=rec)

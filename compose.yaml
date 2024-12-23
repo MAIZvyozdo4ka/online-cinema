@@ -28,7 +28,7 @@ services:
   rec-update:
     build:
       context: .
-      dockerfile: rec.Dockerfile
+      dockerfile: recommendation-updating/rec.Dockerfile
     command: "python3 -m recommendation-updating.main"
     volumes:
       - ./recommendation-updating:/code/recommendation-updating
@@ -43,7 +43,7 @@ services:
     image: postgres:13-alpine
     restart: always
     ports:
-      - 5432:5432
+      - 5433:5432
     env_file:
       ./postgres.env
     networks:
@@ -54,6 +54,7 @@ services:
       retries: 5
       start_period: 1s
       timeout: 5s
+      
   migrations:
     build:
       context: .
@@ -67,6 +68,9 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    env_file:
+      ./postgres.env
+
   auth-service:
     build: ./auth-service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
@@ -80,6 +84,8 @@ services:
       - migrations
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
   movie-service:
     build: ./movie-service
@@ -94,6 +100,8 @@ services:
       - migrations
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
   rating-service:
     build: ./rating-service
@@ -108,6 +116,8 @@ services:
       - migrations
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
   review-service:
     build: ./review-service
@@ -122,6 +132,8 @@ services:
       - migrations
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
   user-service:
     build: ./user-service
@@ -136,6 +148,8 @@ services:
       - migrations
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
   admin-service:
     build: ./admin-service
@@ -150,6 +164,8 @@ services:
       - migrations
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
   moderator-service:
     build: ./moderator-service
@@ -164,6 +180,8 @@ services:
       - migrations
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
   nginx-reverse-proxy:
     image: nginx:latest
@@ -180,6 +198,8 @@ services:
       - admin-service
     networks:
       - app-network
+    env_file:
+      ./postgres.env
 
 
 

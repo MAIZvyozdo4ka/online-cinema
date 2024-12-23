@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from core.exception import BaseHTTPException, http_Exception_handler
 from .moive import admin_moive_action_router
 from .set_role import set_role_router
@@ -15,6 +16,15 @@ app = FastAPI(
         exception_handlers = {
         BaseHTTPException : http_Exception_handler
     }
+)
+
+# Добавляем CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Укажите фронтенд URL. Используйте ["*"] для всех источников.
+    allow_credentials=True,
+    allow_methods=["*"],  # Разрешить все методы (GET, POST, OPTIONS и т. д.)
+    allow_headers=["*"],  # Разрешить все заголовки
 )
 
 app.include_router(admin_moive_action_router)

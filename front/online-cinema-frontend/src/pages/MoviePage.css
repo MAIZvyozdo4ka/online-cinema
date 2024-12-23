@@ -1,0 +1,130 @@
+.movie-page {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 8px;
+    background: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.movie-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.movie-title {
+    font-size: 2.5rem;
+    color: #333;
+}
+
+.movie-genres {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.movie-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.movie-details {
+    flex: 1 1 50%;
+    font-size: 1rem;
+}
+
+.movie-details p {
+    margin: 5px 0;
+}
+
+.movie-links {
+    flex: 1 1 50%;
+}
+
+.movie-links h3 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.movie-links a {
+    display: block;
+    margin: 5px 0;
+    color: #007BFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.movie-links a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    text-align: center;
+    color: red;
+    font-size: 1.2rem;
+}
+
+.loading-message {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* MoviePage.css */
+
+.movie-page {
+    max-width: 800px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.movie-poster {
+    width: 300px;
+    margin: 20px 0;
+}
+
+.review-form {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.form-textarea {
+    height: 100px;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+}
+
+.success-message {
+    color: green;
+}
+
+.submit-button {
+    padding: 10px;
+    width: 100%;
+    background-color: #28a745;
+    color: #fff;
+}
+
+.review-item {
+    text-align: left;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
