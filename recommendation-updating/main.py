@@ -15,32 +15,62 @@ class RecDAO(PostgresDAO):
     @classmethod
     @PostgresDAO.get_session()
     async def get_movies(cls,
-                         session : AsyncSession):
+                         session : AsyncSession,
+                         batch_size: int = 1000):
         query = select(MovieDB.id, MovieDB.title, MovieDB.genres)
-        movies = await session.execute(query)
-        # movies = movies.all()
-        df_movies = pd.DataFrame(movies, columns=['id', 'title', 'genres'])
+        result = await session.stream(query)  # Асинхронный стриминг данных
+
+        df_movies = pd.DataFrame(columns=['id', 'title', 'genres'])
+
+        while True:
+            rows = await result.fetchmany(batch_size)
+            if not rows:
+                break
+
+            batch_df = pd.DataFrame(rows, columns=['id', 'title', 'genres'])
+            df_movies = pd.concat([df_movies, batch_df], ignore_index=True)
+
         return df_movies
 
 
     @classmethod
     @PostgresDAO.get_session()
     async def get_users(cls,
-                        session : AsyncSession):
+                        session : AsyncSession,
+                        batch_size: int = 1000):
         query = select(RatingDB.user_id, RatingDB.movie_id, RatingDB.rating)
-        users = await session.execute(query)
-        # users = users.all()
-        df_users = pd.DataFrame(users, columns=['user_id', 'movie_id', 'rating'])
+        result = await session.stream(query)  # Асинхронный стриминг данных
+
+        df_users = pd.DataFrame(columns=['user_id', 'movie_id', 'rating'])
+
+        while True:
+            rows = await result.fetchmany(batch_size)
+            if not rows:
+                break
+
+            batch_df = pd.DataFrame(rows, columns=['user_id', 'movie_id', 'rating'])
+            df_users = pd.concat([df_users, batch_df], ignore_index=True)
+
         return df_users
 
     @classmethod
     @PostgresDAO.get_session()
     async def get_dataset(cls,
-                        session: AsyncSession):
+                        session: AsyncSession,
+                        batch_size: int = 1000):
         query = select(TrainRatingsDB.user_id, TrainRatingsDB.movie_id, TrainRatingsDB.rating)
-        dataset = await session.execute(query)
-        # dataset = dataset.all()
-        df_dataset = pd.DataFrame(dataset, columns=['user_id', 'movie_id', 'rating'])
+        result = await session.stream(query)
+
+        df_dataset = pd.DataFrame(columns=['user_id', 'movie_id', 'rating'])
+
+        while True:
+            rows = await result.fetchmany(batch_size)
+            if not rows:
+                break
+
+            batch_df = pd.DataFrame(rows, columns=['user_id', 'movie_id', 'rating'])
+            df_dataset = pd.concat([df_dataset, batch_df], ignore_index=True)
+
         return df_dataset
 
 
@@ -76,8 +106,8 @@ class RecDAO(PostgresDAO):
 async def main():
     users_id = await RecDAO.get_users_id()
     df_users = await RecDAO.get_users()
-    df_dataset = pd.read_csv("recommendation-updating/new_clear_rating_with_title.csv")
-    df_movies = pd.read_csv("recommendation-updating/movie_with_titles.csv")
+    df_dataset = await RecDAO.get_dataset()
+    df_movies = await RecDAO.get_movies()
     for id in users_id:
         rec = RecDAO().recommendation(id[0], df_movies, df_dataset, df_users.copy())
         await RecDAO.update(user_id=id[0], recommendation=rec)
