@@ -1,10 +1,26 @@
 import asyncio
 from elasticsearch import AsyncElasticsearch
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from os.path import abspath, dirname
+
+
+class ESSettings(BaseSettings):
+    API_KEY : str
+    CLOUD_ID : str
+    model_config = SettingsConfigDict(
+        extra = 'ignore',
+        env_file = dirname(dirname(abspath(__file__))) + '/env/search.env',
+        frozen = True
+    )
+
+
+settings = ESSettings()
+
 
 class Search:
     client = AsyncElasticsearch(
-        api_key='Tkhycl9wTUI0UWs4V3FEM240Y0o6OXV3OEEzY01TT2E4eEpDdDl6MjRBZw==',
-        cloud_id='744838197d8a4a898c1f01d378506c48:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvJGU1ODNlZWVhODAyMzQ3YmQ5NzlkMzBhZDc2YzMwMjE2JDhiMTU3ZjM5YjdmMTRkYjVhYTQyMGM5ZDgzODI3YTI3'
+        api_key=settings.API_KEY,
+        cloud_id=settings.CLOUD_ID
     )
 
     async def search(self, text):
