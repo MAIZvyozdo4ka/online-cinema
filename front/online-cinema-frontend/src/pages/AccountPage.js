@@ -5,6 +5,7 @@ function AccountPage() {
     const [userInfo, setUserInfo] = useState(null); // Данные пользователя
     const [ratings, setRatings] = useState(null); // Рейтинги фильмов
     const [reviews, setReviews] = useState(null); // Отзывы на фильмы
+    const [recommendations, setRecommendations] = useState(null); // Рекомендации фильмов
     const [error, setError] = useState(null); // Ошибки
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // Базовый URL API
     const navigate = useNavigate(); // Навигация
@@ -87,6 +88,52 @@ function AccountPage() {
         fetchReviews();
     }, [API_BASE_URL]);
 
+    useEffect(() => {
+        // Получение рекомендаций фильмов
+        const fetchRecommendations = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/me/recommendation`, {
+                    method: 'GET',
+                    headers: {
+                        'accept': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch recommendations');
+                }
+
+                const data = await response.json();
+                const formattedRecommendations = data.map(item => ({
+                    title: item.title,
+                    description: item.description,
+                    genres: item.genres,
+                    rating: item.rating,
+                    ratingCount: item.rating_count,
+                    reviewCount: item.review_count,
+                    link: item.local_link,
+                }));
+                setRecommendations(formattedRecommendations);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchRecommendations();
+    }, [API_BASE_URL]);
+
+    const handleWatchNow = (movie) => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        const movieId = parseInt(movie.link.replace('/api/v1/movie/', ''), 10);
+        navigate(`/movie/${movieId}`);
+    };
+
     if (error) {
         return <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>;
     }
@@ -163,6 +210,47 @@ function AccountPage() {
                             <strong>Last Modified:</strong> {review.last_modified} <br />
                         </div>
                     ))
+                )}
+            </div>
+
+            <div style={{ marginTop: '40px' }}>
+                <h2>Recommended Movies</h2>
+                {!recommendations ? (
+                    <p>Loading recommendations...</p>
+                ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
+                        {recommendations.map((movie, index) => (
+                            <div
+                                key={index}
+                                style={{
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    padding: '10px',
+                                    width: '300px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                                }}
+                            >
+                                <h3>{movie.title}</h3>
+                                <p>{movie.description}</p>
+                                <p><strong>Genres:</strong> {movie.genres.join(', ')}</p>
+                                <p><strong>Rating:</strong> {movie.rating} ({movie.ratingCount} ratings)</p>
+                                <p><strong>Reviews:</strong> {movie.reviewCount}</p>
+                                <button
+                                    onClick={() => handleWatchNow(movie)}
+                                    style={{
+                                        color: '#007bff',
+                                        textDecoration: 'underline',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontSize: '16px'
+                                    }}
+                                >
+                                    Watch Now
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 )}
             </div>
         </div>

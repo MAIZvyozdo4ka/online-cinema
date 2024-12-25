@@ -7,7 +7,7 @@ ZIP_FILES=(
 
 DEST_DIRS=(
     "migration/versions/csv_data"
-    "s3-init/core"
+    "core/env"
 )
 
 mkdir s3-init/movie_mp4
