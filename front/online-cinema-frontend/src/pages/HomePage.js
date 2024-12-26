@@ -53,7 +53,6 @@ function HomePage() {
             navigate('/login');
             return;
         }
-        // Извлекаем movieId из local_link:
         const movieId = parseInt(movie.local_link.replace('/api/v1/movie/', ''), 10);
         navigate(`/movie/${movieId}`);
     };

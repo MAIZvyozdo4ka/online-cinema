@@ -200,7 +200,22 @@ services:
       - app-network
     env_file:
       ./postgres.env
-
+    
+  frontend:
+    build: 
+      context: ./front/online-cinema-frontend 
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - auth-service
+      - rating-service
+      - movie-service
+      - review-service
+      - user-service
+      - admin-service
+    networks:
+      - app-network
 
 
 networks:

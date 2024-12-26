@@ -36,6 +36,7 @@ function MoviePage() {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-Force-Preflight': '1'
                     },
                 });
 
@@ -122,6 +123,7 @@ function MoviePage() {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-Force-Preflight': '1'
                     },
                 });
 
@@ -268,11 +270,22 @@ function MoviePage() {
     };
 
     if (error) {
-        return <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>;
+        return (
+            <div style={{ textAlign: 'center', padding: '50px' }}>
+                <h1>Что-то пошло не так</h1>
+                <p style={{ color: 'red' }}>{error}</p>
+                <p>Попробуйте обновить страницу или вернуться позже.</p>
+            </div>
+        );
     }
 
     if (!movie) {
-        return <p style={{ textAlign: 'center' }}>Загрузка информации о фильме...</p>;
+        return (
+            <div style={{ textAlign: 'center', padding: '50px' }}>
+                <h1>Загрузка...</h1>
+                <p>Пожалуйста, подождите, информация о фильме загружается.</p>
+            </div>
+        );
     }
 
     return (
