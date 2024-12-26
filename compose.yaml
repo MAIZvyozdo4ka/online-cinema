@@ -204,9 +204,9 @@ services:
       ./postgres.env
 
   tests:
-    build: 
+    build:
       context: .
-      dockerfile: tests.Dockerfile
+      dockerfile: tests/tests.Dockerfile
     command: "pytest -v --disable-warnings"
     ports:
       - 8008:8000
@@ -221,7 +221,7 @@ services:
       context: ./front/online-cinema-frontend 
       dockerfile: Dockerfile.frontend
     ports:
-      - 8008:80
+      - 8009:80
     depends_on:
       - auth-service
       - rating-service
