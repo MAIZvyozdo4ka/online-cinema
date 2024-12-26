@@ -6,12 +6,9 @@ sqlalchemy
 alembic
 asyncpg
 sqlalchemy-utils
+pytest-asyncio
 pyjwt
 alembic_utils
-aioboto3
-kagglehub
-pandas
-numpy
-scikit-learn
-elasticsearch[async]
 aiohttp
+aioboto3
+PyJWT

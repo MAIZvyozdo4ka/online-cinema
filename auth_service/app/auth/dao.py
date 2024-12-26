@@ -88,9 +88,10 @@ class AuthDAO(PostgresDAO):
         
         user_id = await session.scalar(query_for_new_user)
 
-        insert(RecommedationDB).values()
-
-        return JWTTokenDAO.generate_and_save_new_tokens_by_user_id(session, 
+        query = insert(RecommedationDB).values(userId=user_id).returning(RecommedationDB.userId)
+        await session.scalar(query)
+        # insert(RecommedationDB).values()
+        return JWTTokenDAO.generate_and_save_new_tokens_by_user_id(session,
                                                                         NonPrivateUserInfoOut(
                                                                                 username = user_credentials.username,
                                                                                 user_id = user_id

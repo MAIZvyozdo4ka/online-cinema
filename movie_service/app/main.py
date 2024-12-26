@@ -21,7 +21,5 @@ app.add_middleware(
     allow_headers=["*"],  # Разрешаем все заголовки
 )
 
-app.mount("/static", StaticFiles(directory="./app/static"), name="static")
-
 app.include_router(search_router)
 app.include_router(action_router)

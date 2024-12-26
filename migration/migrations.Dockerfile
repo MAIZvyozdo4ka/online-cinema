@@ -7,7 +7,7 @@ RUN apk add --no-cache \
     postgresql-dev \
     gcc \
     musl-dev
-COPY requirements.txt /code/requirements.txt
+COPY migration/requirements.txt /code/requirements.txt
 
 RUN pip install --upgrade pip
 RUN apk add --no-cache gcc musl-dev libffi-dev postgresql-client g++

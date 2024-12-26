@@ -1,0 +1,7 @@
+sqlalchemy
+alembic
+sqlalchemy-utils
+alembic_utils
+pydantic
+pydantic-settings
+asyncpg
