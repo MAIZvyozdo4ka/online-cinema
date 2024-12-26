@@ -4,19 +4,22 @@ from core.dao import PostgresDAO, AsyncSession
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.exc import IntegrityError
 from .errors import MovieAlreadyExistError, LinksAlreadyExistError, MovieNoFoundError, EmptyRequestError
-import asyncio
+from core.dao.Search import Search
 
 
 
 class AdminMovieDAO(PostgresDAO):
-    
-    
+
+    client = Search()
+
     @classmethod
     @PostgresDAO.get_session(auto_commit = True)
     async def insert_new_movie(cls, session : AsyncSession, movie : NewMovieIn) -> int:
         try:
             query_for_insert_new_movie = insert(MovieDB).values(movie.model_dump()).returning(MovieDB.id)
             movie_id = await session.scalar(query_for_insert_new_movie)
+            await cls.client.add(movie_id, movie.model_dump()['description'])
+
         except IntegrityError:
             raise MovieAlreadyExistError
 
@@ -46,6 +49,7 @@ class AdminMovieDAO(PostgresDAO):
             try:
                 query_for_update_movie = update(MovieDB).where(MovieDB.id == movie.id).values(movie_dump)
                 await session.execute(query_for_update_movie)
+                await cls.client.update(movie.id, movie_dump["description"])
             except IntegrityError:
                 raise MovieAlreadyExistError
         
@@ -65,8 +69,13 @@ class AdminMovieDAO(PostgresDAO):
         query_for_delete_links = delete(LinkDB).where(LinkDB.movie_id == movie_id)
         
         movie_id_db = await session.scalar(query_for_delete_movie)
-        
+        await cls.client.delete(movie_id_db)
+
         if movie_id_db is None:
             raise MovieNoFoundError
         
         await session.execute(query_for_delete_links)
+
+
+    async def close_elasticsearch(self):
+        await self.client.close()

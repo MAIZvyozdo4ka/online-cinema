@@ -9,3 +9,5 @@ sqlalchemy-utils
 pyjwt
 alembic_utils
 aioboto3
+elasticsearch[async]
+aiohttp

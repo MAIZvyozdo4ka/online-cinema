@@ -35,3 +35,8 @@ async def delete_moive(movie_id : Annotated[MovieID, Path()]) -> UserActionOut:
     await AdminMovieDAO.delete_movie(movie_id)
     return UserActionOut(status = SuccessUserActionStatusType.SUCCESS_DELETE)
 
+
+@router.on_event("shutdown")
+async def shutdown_event():
+    await AdminMovieDAO.close_elasticsearch()
+
