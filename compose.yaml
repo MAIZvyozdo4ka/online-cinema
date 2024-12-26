@@ -183,6 +183,7 @@ services:
     env_file:
       ./postgres.env
 
+  
   nginx-reverse-proxy:
     image: nginx:latest
     ports:
@@ -190,6 +191,7 @@ services:
     volumes:
       - ./nginx_config.conf:/etc/nginx/conf.d/default.conf
     depends_on:
+      - frontend
       - auth-service
       - rating-service
       - movie-service
@@ -202,9 +204,9 @@ services:
       ./postgres.env
 
   tests:
-    build:
+    build: 
       context: .
-      dockerfile: tests/tests.Dockerfile
+      dockerfile: tests.Dockerfile
     command: "pytest -v --disable-warnings"
     ports:
       - 8008:8000
@@ -219,7 +221,7 @@ services:
       context: ./front/online-cinema-frontend 
       dockerfile: Dockerfile.frontend
     ports:
-      - "3000:80"
+      - 8008:80
     depends_on:
       - auth-service
       - rating-service
