@@ -1,0 +1,12 @@
+aioboto3
+kagglehub
+pandas
+numpy
+scikit-learn
+elasticsearch[async]
+aiohttp
+sqlalchemy
+sqlalchemy-utils
+pydantic-settings
+asyncpg
+fastapi[all]

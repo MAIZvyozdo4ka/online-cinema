@@ -15,7 +15,7 @@ services:
   s3-init:
     build: 
       context: .
-      dockerfile: s3.Dockerfile
+      dockerfile: s3_init/s3.Dockerfile
     command: "python3 s3-init/s3_init.py"
     volumes:
       - ./s3_init:/code/s3_init
@@ -58,7 +58,7 @@ services:
   migrations:
     build:
       context: .
-      dockerfile: migrations.Dockerfile
+      dockerfile: migration/migrations.Dockerfile
     command: ["sh", "-c", "until pg_isready -U postgres -h postgres -p 5432; do echo Waiting for DB; sleep 2; done; alembic upgrade head"]
     volumes:
       - ./migration:/code/migration
@@ -202,9 +202,9 @@ services:
       ./postgres.env
 
   tests:
-    build: 
+    build:
       context: .
-      dockerfile: tests.Dockerfile
+      dockerfile: tests/tests.Dockerfile
     command: "pytest -v --disable-warnings"
     ports:
       - 8008:8000
