@@ -18,8 +18,8 @@ services:
       dockerfile: s3.Dockerfile
     command: "python3 s3-init/s3_init.py"
     volumes:
-      - ./s3-init:/code/s3-init
-      - ./core:/code/s3-init/core
+      - ./s3_init:/code/s3_init
+      - ./core:/code/s3_init/core
     depends_on:
       - s3
     networks:
@@ -72,12 +72,12 @@ services:
       ./postgres.env
 
   auth-service:
-    build: ./auth-service
+    build: ./auth_service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - 8001:8000
     volumes:
-      - ./auth-service/app:/code/app
+      - ./auth_service/app:/code/app
       - ./core:/code/core
     depends_on:
       - postgres
@@ -88,12 +88,12 @@ services:
       ./postgres.env
 
   movie-service:
-    build: ./movie-service
+    build: ./movie_service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - 8002:8000
     volumes:
-      - ./movie-service/app:/code/app
+      - ./movie_service/app:/code/app
       - ./core:/code/core
     depends_on:
       - postgres
@@ -104,12 +104,12 @@ services:
       ./postgres.env
 
   rating-service:
-    build: ./rating-service
+    build: ./rating_service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - 8003:8000
     volumes:
-      - ./rating-service/app:/code/app
+      - ./rating_service/app:/code/app
       - ./core:/code/core
     depends_on:
       - postgres
@@ -120,12 +120,12 @@ services:
       ./postgres.env
 
   review-service:
-    build: ./review-service
+    build: ./review_service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - 8004:8000
     volumes:
-      - ./review-service/app:/code/app
+      - ./review_service/app:/code/app
       - ./core:/code/core
     depends_on:
       - postgres
@@ -136,12 +136,12 @@ services:
       ./postgres.env
 
   user-service:
-    build: ./user-service
+    build: ./user_service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - 8005:8000
     volumes:
-      - ./user-service/app:/code/app
+      - ./user_service/app:/code/app
       - ./core:/code/core
     depends_on:
       - postgres
@@ -152,12 +152,12 @@ services:
       ./postgres.env
 
   admin-service:
-    build: ./admin-service
+    build: ./admin_service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - 8006:8000
     volumes:
-      - ./admin-service/app:/code/app
+      - ./admin_service/app:/code/app
       - ./core:/code/core
     depends_on:
       - postgres
@@ -168,12 +168,12 @@ services:
       ./postgres.env
 
   moderator-service:
-    build: ./moderator-service
+    build: ./moderator_service
     command: "uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000"
     ports:
       - 8007:8000
     volumes:
-      - ./moderator-service/app:/code/app
+      - ./moderator_service/app:/code/app
       - ./core:/code/core
     depends_on:
       - postgres
@@ -200,6 +200,19 @@ services:
       - app-network
     env_file:
       ./postgres.env
+
+  tests:
+    build: 
+      context: .
+      dockerfile: tests.Dockerfile
+    command: "pytest -v --disable-warnings"
+    ports:
+      - 8008:8000
+    depends_on:
+      - postgres
+      - migrations
+    networks:
+      - app-network
     
   frontend:
     build: 

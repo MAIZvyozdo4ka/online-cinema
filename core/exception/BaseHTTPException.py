@@ -81,7 +81,7 @@ class BaseHTTPException(Exception):
 
 
 
-async def http_Exception_handler(request: Request, exc: BaseHTTPException) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: BaseHTTPException) -> JSONResponse:
     
     response = JSONResponse(status_code = exc.status_code, content = exc.ditail, headers = exc.headers)
     

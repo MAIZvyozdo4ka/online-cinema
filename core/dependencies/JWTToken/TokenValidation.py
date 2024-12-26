@@ -4,7 +4,7 @@ from fastapi.security.api_key import APIKeyHeader
 from jwt import InvalidTokenError, ExpiredSignatureError
 from .JWTTokenType import JWTTokenType
 from .errors import *
-from .dao import JWTTokenDAO
+from .dao import JWTTokenDAO, AsyncSession
 from typing import Any
 from .schemas import IssuedJWTTokenPayloadOut
 
@@ -42,6 +42,26 @@ class TokenValidation:
 
         return payload
     
+    @classmethod
+    async def check_access_token_with_session(
+        cls,
+        request: Request,
+        authorization_header: str = Security(APIKeyHeader(name = 'Authorization', auto_error = False)),
+        session : AsyncSession | None = None
+    ) -> str:
+        clear_token = cls.__try_to_get_clear_token(authorization_header = authorization_header)
+
+        payload = cls.check_token_payload(clear_token, JWTTokenType.ACCESS)
+        if session is not None:
+            await JWTTokenDAO.check_token_is_remove(session, payload['jti'])
+        else: 
+            await JWTTokenDAO.check_token_is_remove(payload['jti'])
+        request.state.user = IssuedJWTTokenPayloadOut.model_validate(payload)
+        request.state.error = None
+        
+        return authorization_header
+    
+    
     
 
     @classmethod
@@ -50,17 +70,7 @@ class TokenValidation:
         request: Request,
         authorization_header: str = Security(APIKeyHeader(name = 'Authorization', auto_error = False))
     ) -> str:
-        
-        clear_token = cls.__try_to_get_clear_token(authorization_header = authorization_header)
-
-        payload = cls.check_token_payload(clear_token, JWTTokenType.ACCESS)
-        
-        await JWTTokenDAO.check_token_is_remove(payload['jti'])
-        
-        request.state.user = IssuedJWTTokenPayloadOut.model_validate(payload)
-        request.state.error = None
-        
-        return authorization_header
+        return await cls.check_access_token_with_session(request, authorization_header)
     
     
     
