@@ -1,7 +1,10 @@
 import pytest
 import pytest_asyncio
+from typing import TypeAlias
 
 LOOP_SCOPE = 'module'
+
+MovieType : TypeAlias = dict[str, str | list[str] | dict[str, int]]
 
 
 class TestBase:

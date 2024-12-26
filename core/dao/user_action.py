@@ -65,12 +65,18 @@ class UserActionDAO(PostgresDAO):
                                    inserted_func : Callable[[ModelWithPrivateUserIdAndMovieId], UserActionOut],
                                    updated_func : Callable[[ModelWithPrivateUserIdAndMovieId], UserActionOut],
                                    form : ModelWithPrivateUserIdAndMovieId,
-                                   error : BaseHTTPException
+                                   error : BaseHTTPException,
+                                   session : AsyncSession | None = None
                                 ) -> UserActionOut:
         try:
-            return await inserted_func(form)
+            if session is None:
+                return await inserted_func(form)
+            return await inserted_func(session, form)
         except UniqueViolationError:
-            return await updated_func(form)
+            if session is None:
+                return await updated_func(form)
+            session.rollback()
+            return await updated_func(session, form)
         except ForeignKeyViolationError:
             raise error
         
