@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -16,7 +16,6 @@ function MoviePage() {
     const [review, setReview] = useState('');
     const [statement, setStatement] = useState('positive');
 
-    // New state variables
     const [ratingsDistribution, setRatingsDistribution] = useState([]);
     const [myRating, setMyRating] = useState(null);
     const [selectedRating, setSelectedRating] = useState(null);
@@ -24,190 +23,115 @@ function MoviePage() {
     const [reviews, setReviews] = useState([]);
     const [myReview, setMyReview] = useState(null);
 
-    // Validation states
     const [headerValid, setHeaderValid] = useState(false);
     const [reviewValid, setReviewValid] = useState(false);
 
-    // Fetch movie details
     useEffect(() => {
-        const fetchMovie = async () => {
+        const fetchAllData = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/movie/${movieId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Force-Preflight': '1'
-                    },
-                });
+                // Fetch movie details
+                const fetchMovie = async () => {
+                    const response = await fetch(`${API_BASE_URL}/movie/${movieId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to fetch movie details');
+                    }
+                    const data = await response.json();
+                    setMovie(data);
+                };
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to fetch movie details');
-                }
+                // Fetch user's own review
+                const fetchMyReview = async () => {
+                    const response = await fetch(`${API_BASE_URL}/review/movie/${movieId}/my`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    if (response.status === 401) {
+                        setMyReview(null);
+                        return;
+                    }
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to fetch your review');
+                    }
+                    const data = await response.json();
+                    setMyReview(data);
+                };
 
-                const data = await response.json();
-                setMovie(data);
+                // Fetch reviews
+                const fetchReviews = async () => {
+                    const response = await fetch(`${API_BASE_URL}/review/movie/${movieId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch reviews');
+                    }
+                    const data = await response.json();
+                    setReviewsData(data);
+                    setReviews(data.reviews || []);
+                };
+
+                // Fetch ratings distribution
+                const fetchRatingsDistribution = async () => {
+                    const response = await fetch(`${API_BASE_URL}/rating/movie/${movieId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to fetch ratings distribution');
+                    }
+                    const data = await response.json();
+                    setRatingsDistribution(Array.isArray(data) ? data : []);
+                };
+
+                // Fetch user's own rating
+                const fetchMyRating = async () => {
+                    const response = await fetch(`${API_BASE_URL}/rating/movie/${movieId}/my`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    if (response.status === 401) {
+                        setMyRating(null);
+                        return;
+                    }
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to fetch your rating');
+                    }
+                    const data = await response.json();
+                    setMyRating(data?.rating ?? null);
+                };
+
+                // Выполняем все запросы параллельно
+                await Promise.all([
+                    fetchMovie(),
+                    fetchMyReview(),
+                    fetchReviews(),
+                    fetchRatingsDistribution(),
+                    fetchMyRating(),
+                ]);
+
                 setError(null);
             } catch (err) {
-                setError(err.message);
-                setMovie(null);
-            }
-        };
-
-        fetchMovie();
-    }, [movieId, API_BASE_URL]);
-
-    // Fetch user's own review
-    const fetchMyReview = useCallback(async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/review/movie/${movieId}/my`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-    
-            if (response.status === 401) {
-                setMyReview(null);
-                return;
-            }
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch your review');
-            }
-    
-            const data = await response.json();
-            setMyReview(data);
-        } catch (err) {
-            console.error(err.message);
-            setMyReview(null);
-        }
-    }, [API_BASE_URL, movieId]);
-    
-
-    useEffect(() => {
-        fetchMyReview();
-    }, [fetchMyReview]);
-
-    // Fetch reviews
-    useEffect(() => {
-        const fetchReviews = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/review/movie/${movieId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch reviews');
-                }
-
-                const data = await response.json();
-                console.log("Полученные отзывы:", data);
-
-                setReviewsData(data);
-                setReviews(data.reviews || []);
-            } catch (err) {
-                console.error("Ошибка при получении отзывов:", err.message);
-                setReviewsData(null);
-                setReviews([]);
-            }
-        };
-
-        fetchReviews();
-    }, [movieId, API_BASE_URL]);
-
-    // Fetch ratings distribution
-    useEffect(() => {
-        const fetchRatingsDistribution = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/rating/movie/${movieId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Force-Preflight': '1'
-                    },
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to fetch ratings distribution');
-                }
-
-                const data = await response.json();
-                setRatingsDistribution(Array.isArray(data) ? data : []);
-            } catch (err) {
                 console.error(err.message);
-                setRatingsDistribution([]); // Ensure it's an array even on error
+                setError(err.message);
             }
         };
 
-        fetchRatingsDistribution();
+        fetchAllData();
     }, [movieId, API_BASE_URL]);
-
-    // Fetch user's own rating
-    useEffect(() => {
-        const fetchMyRating = async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/rating/movie/${movieId}/my`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-    
-                // Обработка случая неавторизованного пользователя
-                if (response.status === 401) {
-                    console.warn("User not authorized. Setting rating to null.");
-                    setMyRating(null);
-                    return;
-                }
-    
-                // Проверка других ошибок
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to fetch your rating');
-                }
-    
-                const data = await response.json();
-    
-                // Проверка, что данные не null или undefined
-                setMyRating(data?.rating ?? null);
-            } catch (err) {
-                console.error("Error fetching rating:", err.message);
-                setMyRating(null);
-            }
-        };
-    
-        fetchMyRating();
-    }, [movieId, API_BASE_URL]);
-
-    const handleRatingSubmit = async (rating) => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/rating/rate-movie`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    movie_id: Number(movieId),
-                    rating,
-                }),
-            });
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to submit rating');
-            }
-    
-            setSelectedRating(rating); // Обновляем выбранную оценку
-            setMyRating(rating); // Обновляем отображаемую оценку
-            console.log(`Оценка ${rating} успешно отправлена!`);
-        } catch (err) {
-            console.error('Ошибка при отправке оценки:', err.message);
-        }
-    };    
-    
 
     // Validate header
     useEffect(() => {
@@ -226,6 +150,32 @@ function MoviePage() {
             setReviewValid(false);
         }
     }, [review]);
+
+    const handleRatingSubmit = async (rating) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/rating/rate-movie`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    movie_id: Number(movieId),
+                    rating,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to submit rating');
+            }
+
+            setSelectedRating(rating);
+            setMyRating(rating);
+        } catch (err) {
+            console.error('Ошибка при отправке оценки:', err.message);
+        }
+    };
 
     const handleReviewSubmit = async (e) => {
         e.preventDefault();
@@ -260,9 +210,6 @@ function MoviePage() {
             setHeader('');
             setReview('');
             setStatement('positive');
-
-            // Refresh data
-            fetchMyReview();
         } catch (err) {
             setReviewError(err.message);
             setSuccessMessage(null);
