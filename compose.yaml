@@ -16,7 +16,7 @@ services:
     build: 
       context: .
       dockerfile: s3_init/s3.Dockerfile
-    command: "python3 s3-init/s3_init.py"
+    command: "python3 s3_init/s3_init.py"
     volumes:
       - ./s3_init:/code/s3_init
       - ./core:/code/s3_init/core

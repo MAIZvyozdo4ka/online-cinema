@@ -12,7 +12,7 @@ class InitS3:
     async def full_init(cls, client : ServiceResource) -> None:
         await client.create_bucket(Bucket = s3config.MOVIE_BUCKET_NAME, ACL = s3config.MOVIE_BUCKET_ACL)
         movie_bucket = await client.Bucket(s3config.MOVIE_BUCKET_NAME)
-        with open('s3-init/movie_mp4/movie.csv', 'r+') as init_file:
+        with open('s3_init/movie_mp4/movie.csv', 'r+') as init_file:
             for file in init_file:
                 id, file_path = file.replace('"', '').removesuffix('\n').split(',', 1)
                 with open(file_path, 'rb') as read_file:
