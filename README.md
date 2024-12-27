@@ -1,8 +1,12 @@
+# Онлайн кинотеатр Звездочка
+Кинотеатр с рекомендательной системой, поиском и возможностью просматривать фильмы.
 
- 
+### Скриншоты
+![image](https://github.com/user-attachments/assets/bf5e74e8-1e39-4ada-a442-aaf120b3e653)
+![image](https://github.com/user-attachments/assets/cc7646f8-fa0d-4fa7-b88e-add629447f3e)
 
-- скачиваете докер (лучше Docker-Desktop)
 
+### Инструкция по установке
 - Разархивируем ```.csv``` данные из архива
 ```bash 
 ./install.sh
@@ -13,10 +17,16 @@
 docker compose up -d
 ```
 
-- бд работает на 5432 порту - если у вас на этом же порту работет ваша бд то еужно либо оффеуть ее или в docker-compose указать 5432:5432
 
-5 -- весь бек доступен по префиксу api/v1 - за документацией по каждому из серисов обращаться по http://localhost:8080/{то что написанно для каждого сервиса в nginx_config}/docs
 
-6 -- admin password - qKXxzXwQ , login - main_admin
 
-7 -- в s3-init создать папку movie_mp4 d нее файлы с фильмами и файл movie.csv с movie_id,"file_path"
+
+
+
+
+
+
+
+
+
+ 
